@@ -41,10 +41,6 @@ export function FinalCTA() {
           >
             <Link href="/inquiry">문의하기</Link>
           </Button>
-
-          <p className="text-white/70 text-sm mt-4">
-            * 도입 진단 및 초기 컨설팅은 무료로 제공됩니다.
-          </p>
         </motion.div>
       </Container>
     </section>

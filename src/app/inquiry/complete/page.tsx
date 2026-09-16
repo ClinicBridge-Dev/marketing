@@ -38,13 +38,10 @@ export default function InquiryCompletePage() {
             도입 상담 신청이 접수되었습니다
           </h1>
 
-          <p className="text-gray-600 leading-relaxed mb-2">
+          <p className="text-gray-600 leading-relaxed mb-8">
             전담 컨설턴트가 영업일 기준 1~2일 이내에
             <br className="hidden sm:block" />
             {" "}남겨주신 연락처로 직접 연락드리겠습니다.
-          </p>
-          <p className="text-gray-500 text-sm mb-8">
-            * 도입 진단 및 초기 컨설팅은 무료로 제공됩니다.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
