@@ -41,7 +41,7 @@ const MEMBERS: Member[] = [
   {
     name: "글로벌 SEO",
     role: "담당 컨설턴트",
-    description: "핵심 키워드 상위 노출과 다국어 홈페이지 SEO를 컨설팅합니다.",
+    description: "핵심 키워드 상위 노출과 다국어 홈페이지 SEO를 컨설팅합니다",
     photo: "/images/profiles/team-6.png",
   },
   {
