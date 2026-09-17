@@ -56,7 +56,7 @@ export function ServiceHighlights() {
     <section className="section-padding bg-white">
       <Container>
         <SectionTitle
-          title="실제 성과로 이어지는 마케팅 패키지"
+          title="실제 성과로 이어지는 마케팅 패키지 서비스"
           subtitle="채널별로 검증된 방식으로, 실행까지 책임집니다"
         />
 
