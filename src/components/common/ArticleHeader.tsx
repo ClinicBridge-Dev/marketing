@@ -27,11 +27,11 @@ export function ArticleHeader({
         </div>
       )}
 
-      <div className="flex items-center gap-3 mb-4">
+      <div className="flex flex-wrap items-center gap-3 mb-4">
         <span className="text-sm font-medium text-[#C1452D] bg-[#FBEEE8] px-3 py-1 rounded-full">
           {category}
         </span>
-        <div className="flex items-center gap-2 text-sm text-gray-400">
+        <div className="flex flex-wrap items-center gap-2 text-sm text-gray-400">
           {readTime && (
             <>
               <span>{readTime}</span>

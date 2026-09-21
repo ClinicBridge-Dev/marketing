@@ -85,13 +85,13 @@ export default function PricingPage() {
             ))}
           </div>
 
-          <div className="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden">
-            <table className="w-full table-fixed text-left border-collapse">
+          <div className="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-x-auto">
+            <table className="w-full min-w-[560px] table-fixed text-left border-collapse">
               <thead>
                 <tr className="border-b border-gray-100 bg-gray-50">
-                  <th className="w-[40%] px-6 py-4 text-sm font-semibold text-gray-900">서비스</th>
-                  <th className="w-[30%] px-6 py-4 text-sm font-semibold text-gray-900">가격</th>
-                  <th className="w-[30%] px-6 py-4 text-sm font-semibold text-gray-900">비고</th>
+                  <th className="w-[40%] px-3 sm:px-6 py-4 text-sm font-semibold text-gray-900">서비스</th>
+                  <th className="w-[30%] px-3 sm:px-6 py-4 text-sm font-semibold text-gray-900">가격</th>
+                  <th className="w-[30%] px-3 sm:px-6 py-4 text-sm font-semibold text-gray-900">비고</th>
                 </tr>
               </thead>
               <tbody>
@@ -101,7 +101,7 @@ export default function PricingPage() {
                     {...addOnStagger(index)}
                     className="border-b border-gray-100 last:border-b-0"
                   >
-                    <td className="px-6 py-4 font-semibold text-gray-900">
+                    <td className="px-3 sm:px-6 py-4 font-semibold text-gray-900">
                       <div className="flex items-center gap-2.5">
                         {service.logo ? (
                           <Image
@@ -119,11 +119,11 @@ export default function PricingPage() {
                         {service.name}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 sm:px-6 py-4">
                       <span className="text-lg font-bold text-gray-900">{service.price}</span>
                       {service.unit && <span className="text-sm text-gray-500"> {service.unit}</span>}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{service.note || "-"}</td>
+                    <td className="px-3 sm:px-6 py-4 text-sm text-gray-500">{service.note || "-"}</td>
                   </motion.tr>
                 ))}
               </tbody>

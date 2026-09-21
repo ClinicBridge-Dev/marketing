@@ -331,25 +331,25 @@ export default function DataPage() {
               </ul>
             </div>
 
-            <div className="border border-gray-100 overflow-hidden">
-              <table className="w-full text-sm text-left">
+            <div className="border border-gray-100 overflow-x-auto">
+              <table className="w-full min-w-[560px] text-sm text-left">
                 <thead>
                   <tr className="bg-[#C1452D] text-white">
-                    <th className="px-4 py-3 font-semibold">티어</th>
-                    <th className="px-4 py-3 font-semibold">가격대</th>
-                    <th className="px-4 py-3 font-semibold">서비스 내용</th>
-                    <th className="px-4 py-3 font-semibold">타겟</th>
+                    <th className="px-3 sm:px-4 py-3 font-semibold whitespace-nowrap">티어</th>
+                    <th className="px-3 sm:px-4 py-3 font-semibold whitespace-nowrap">가격대</th>
+                    <th className="px-3 sm:px-4 py-3 font-semibold">서비스 내용</th>
+                    <th className="px-3 sm:px-4 py-3 font-semibold">타겟</th>
                   </tr>
                 </thead>
                 <tbody>
                   {TIERS.map((tier) => (
                     <tr key={tier.name} className="border-t border-gray-100">
-                      <td className="px-4 py-3 font-bold text-gray-900">{tier.name}</td>
-                      <td className="px-4 py-3 text-gray-700">{tier.price}</td>
-                      <td className="px-4 py-3 text-gray-700" style={{ wordBreak: "keep-all" }}>
+                      <td className="px-3 sm:px-4 py-3 font-bold text-gray-900 whitespace-nowrap">{tier.name}</td>
+                      <td className="px-3 sm:px-4 py-3 text-gray-700 whitespace-nowrap">{tier.price}</td>
+                      <td className="px-3 sm:px-4 py-3 text-gray-700" style={{ wordBreak: "keep-all" }}>
                         {tier.detail}
                       </td>
-                      <td className="px-4 py-3 text-gray-700" style={{ wordBreak: "keep-all" }}>
+                      <td className="px-3 sm:px-4 py-3 text-gray-700" style={{ wordBreak: "keep-all" }}>
                         {tier.target}
                       </td>
                     </tr>
