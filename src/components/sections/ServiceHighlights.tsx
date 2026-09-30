@@ -20,11 +20,12 @@ interface ServiceCard {
 
 const SERVICES: ServiceCard[] = [
   {
-    title: "LINE 계정 세팅",
-    description: "일본 마케팅 처음이신가요? 뭐부터 해야할지 모르겠고, 처음부터 큰 돈 쓰기는 부담스러우시다구요? 매출 발생의 첫 걸음, 라인 계정 세팅부터 진행하세요. 일본인 방문 가능성이 0에서 1로 바뀌는 가장 중요한 단계입니다.",
-    logos: ["/images/line.png"],
-    features: ["LINE 계정 생성 및 일본 현지화 세팅"],
-    bottomPrice: "15만원",
+    title: "클리닉브릿지 운영",
+    description: "기존 국내 채널에 올린 콘텐츠를 국가별로 재창작해 해외환자 유치용 SNS 채널에 직접 발행하고 운영하는 월 구독 서비스입니다.",
+    logos: ["/images/instagram.png"],
+    features: ["콘텐츠 국가별 자동 현지화", "해외 SNS 채널 자동 발행 및 운영"],
+    href: "/autopilot",
+    linkLabel: "자세히 보기",
   },
   {
     title: "바이럴 콘텐츠 마케팅 패키지",
@@ -66,8 +67,8 @@ export function ServiceHighlights() {
               key={service.title}
               {...stagger(index)}
               className={`flex flex-col bg-white rounded-2xl p-6 ${
-                service.title === "LINE 계정 세팅"
-                  ? "border-2 border-[#06C755]"
+                service.title === "클리닉브릿지 운영"
+                  ? "border-2 border-[#C1452D]"
                   : "border border-gray-200"
               }`}
             >
