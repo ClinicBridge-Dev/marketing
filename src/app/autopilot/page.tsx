@@ -115,7 +115,7 @@ export default function AutopilotPage() {
               className="text-center max-w-2xl mx-auto"
             >
               <h1
-                className="font-bold text-white mb-5 text-[27px] sm:text-[33px] lg:text-[41px] leading-[1.3] whitespace-nowrap"
+                className="font-bold text-white mb-5 text-[27px] sm:text-[33px] lg:text-[41px] leading-[1.3] sm:whitespace-nowrap"
                 style={{ wordBreak: "keep-all" }}
               >
                 한국 인스타만 운영하세요.
