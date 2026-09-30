@@ -54,7 +54,7 @@ const PLANS = [
     perMarket: "국가당 월 11.98만원",
     features: ["국가 5개", "인스타그램", "콘텐츠 업로드수 (국가별 월 20개 이내)"],
     highlight: false,
-    purchaseUrl: "https://www.latpeed.com/memberships/6abb445b8d8cfe9f30423aba/pay/gZ25I",
+    purchaseUrl: "https://www.latpeed.com/memberships/6abb445b8d8cfe9f30423aba/pay/CGL-d",
   },
 ]
 
