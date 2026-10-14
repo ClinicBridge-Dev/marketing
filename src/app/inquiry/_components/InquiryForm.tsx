@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import Link from "next/link"
@@ -10,6 +10,7 @@ import { Button } from "@/components/common/Button"
 import { cn } from "@/lib/utils"
 import { inquiryPageFormSchema, type InquiryPageFormData } from "@/lib/validators"
 import { trackConversion } from "@/lib/gtag"
+import { trackLeadCreated } from "@/lib/openaiPixel"
 
 const COUNTRY_OPTIONS = ["일본", "영미/영어권"]
 const INTEREST_OPTIONS = ["LINE 계정 세팅", "바이럴 콘텐츠 마케팅 패키지", "월 정기 운영 플랜", "애드온 서비스", "기타 문의"]
@@ -41,6 +42,8 @@ interface InquiryFormProps {
 
 export function InquiryForm({ onSuccess }: InquiryFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
+  // 버튼 비활성화(state)는 다음 렌더 후에 반영되므로, 빠른 연타로 같은 신청이 두 번 전송되지 않게 ref로 막는다.
+  const submitLockRef = useRef(false)
 
   const {
     register,
@@ -75,7 +78,9 @@ export function InquiryForm({ onSuccess }: InquiryFormProps) {
 
   const onSubmit = async (data: InquiryPageFormData) => {
     if (data.hp) return // honeypot
+    if (submitLockRef.current) return
 
+    submitLockRef.current = true
     setIsSubmitting(true)
     try {
       const response = await fetch("/api/inquiry", {
@@ -83,10 +88,14 @@ export function InquiryForm({ onSuccess }: InquiryFormProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       })
+      const result: { ok?: boolean; inquiryId?: string } | null = await response.json().catch(() => null)
 
-      if (response.ok) {
+      // 서버가 신청을 실제로 접수한 경우(ok + inquiryId)에만 성공 처리와 광고 전환을 보낸다.
+      // 전환은 이 제출 핸들러에서만 보내므로 완료 페이지 새로고침·재렌더링으로 다시 집계되지 않는다.
+      if (response.ok && result?.ok === true && typeof result.inquiryId === "string") {
         reset({ interests: [] })
         trackConversion()
+        trackLeadCreated(result.inquiryId)
         onSuccess()
       } else {
         toast.error("전송 중 오류가 발생했습니다. 다시 시도해주세요.")
@@ -95,6 +104,7 @@ export function InquiryForm({ onSuccess }: InquiryFormProps) {
       console.error("Inquiry form submission error:", error)
       toast.error("전송 중 오류가 발생했습니다. 다시 시도해주세요.")
     } finally {
+      submitLockRef.current = false
       setIsSubmitting(false)
     }
   }

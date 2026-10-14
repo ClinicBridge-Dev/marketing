@@ -4,8 +4,10 @@ import { Container } from "@/components/common/Container"
 import { Button } from "@/components/common/Button"
 
 // 상담 신청 완료(Thank-you) 페이지.
-// 폼 제출 성공 시 InquiryDialog가 이 경로로 리다이렉트한다.
-// Google Ads 전환은 제출 시점(InquiryDialog)에서 이미 발사되므로 이 페이지는 순수 확인 UI다.
+// 폼 제출 성공 시 /inquiry 페이지(InquiryForm)와 상담 모달(InquiryDialog)이 이 경로로 이동한다.
+// 광고 전환은 각 폼의 제출 핸들러에서 서버 접수 확인 후 이미 보내므로 이 페이지는 순수 확인 UI다
+// (Google Ads: 두 폼 모두, OpenAI lead_created: InquiryForm만).
+// 여기서 전환을 보내면 새로고침·직접 방문이 중복 집계되니 추가하지 않는다.
 // 직접 방문/색인으로 인한 허수 전환을 막기 위해 noindex 처리한다.
 export const metadata: Metadata = {
   title: "상담 신청 완료 - 클리닉브릿지",

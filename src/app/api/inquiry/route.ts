@@ -56,6 +56,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "올바른 이메일을 입력해주세요" }, { status: 400 })
     }
 
+    // 접수 건 식별자. 클라이언트는 이 값이 있을 때만 광고 전환(OpenAI lead_created)을 보내고,
+    // 같은 값을 event_id로 써서 중복 집계를 막는다. 개인정보와 무관한 무작위 값이다.
+    const inquiryId = crypto.randomUUID()
+
     const countriesLine = targetCountries.join(", ")
     const interestsLine = interests.join(", ")
 
@@ -183,6 +187,7 @@ ${challenges}
       })
       return NextResponse.json({
         ok: true,
+        inquiryId,
         trelloCardId: trelloCard?.id ?? null,
         trelloCardShortUrl: trelloCard?.shortUrl ?? null,
         slackNotified: slackResult.ok || slackResult.skipped || false,
@@ -229,6 +234,7 @@ ${challenges}
 
     return NextResponse.json({
       ok: true,
+      inquiryId,
       trelloCardId: trelloCard?.id ?? null,
       trelloCardShortUrl: trelloCard?.shortUrl ?? null,
       slackNotified: slackResult.ok || slackResult.skipped || false,

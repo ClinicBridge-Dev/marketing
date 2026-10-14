@@ -5,6 +5,7 @@ import "./globals.css"
 import { ClientProviders } from "@/components/providers/ClientProviders"
 import { GAProvider } from "@/components/providers/GAProvider"
 import { GA_ID, GOOGLE_ADS_ID } from "@/lib/gtag"
+import { OPENAI_PIXEL_ID, getOpenAIPixelInitScript } from "@/lib/openaiPixel"
 
 export const metadata: Metadata = {
   title: "클리닉브릿지 - 글로벌 의료 마케팅",
@@ -93,6 +94,13 @@ export default function RootLayout({
               }}
             />
           </>
+        )}
+        {OPENAI_PIXEL_ID && (
+          <Script
+            id="openai-pixel-init"
+            strategy="afterInteractive"
+            dangerouslySetInnerHTML={{ __html: getOpenAIPixelInitScript(OPENAI_PIXEL_ID) }}
+          />
         )}
         <ClientProviders>
           <Suspense fallback={null}>

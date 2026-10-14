@@ -83,7 +83,13 @@ NEXT_PUBLIC_GA_ID=your_google_analytics_id
 
 # Meta Pixel (선택사항)
 NEXT_PUBLIC_META_PIXEL_ID=your_meta_pixel_id
+
+# OpenAI Ads Measurement Pixel (선택사항, 미설정 시 비활성)
+# 상담 신청 접수 시 lead_created 전환 전송. docs/analytics/openai-ads-pixel.md 참고
+NEXT_PUBLIC_OPENAI_PIXEL_ID=your_openai_pixel_id
 ```
+
+전체 환경변수 목록과 설명은 `.env.example`을 기준으로 한다.
 
 ### 3. 개발 서버 실행
 
