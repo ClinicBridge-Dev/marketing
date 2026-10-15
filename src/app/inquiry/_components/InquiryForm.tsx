@@ -304,7 +304,7 @@ export function InquiryForm({ onSuccess }: InquiryFormProps) {
             전송 중...
           </>
         ) : (
-          "문의하기"
+          "상담 신청하기"
         )}
       </Button>
     </form>
