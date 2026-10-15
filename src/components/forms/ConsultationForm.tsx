@@ -7,7 +7,7 @@ import { Loader2 } from "lucide-react"
 import toast from "react-hot-toast"
 import { Button } from "@/components/common/Button"
 import { contactFormSchema, type ContactFormData } from "@/lib/validators"
-import { trackConversion } from "@/lib/gtag"
+import { trackConversion, trackLead } from "@/lib/gtag"
 
 interface ConsultationFormProps {
   onSuccess: () => void
@@ -42,8 +42,9 @@ export function ConsultationForm({ onSuccess, submitLabel = "문의하기" }: Co
         reset()
         // inquiry-success 이벤트 디스패치 (ContentGate 콘텐츠 잠금 해제용, 경로 무관 항상 발사)
         window.dispatchEvent(new CustomEvent("inquiry-success"))
-        // 폼 제출 완료 = 실제 리드. 이 시점에 Google Ads 전환을 발사한다.
+        // 폼 제출 완료 = 실제 리드. 이 시점에 Google Ads 전환과 GA4 generate_lead를 발사한다.
         trackConversion()
+        trackLead("consultation_modal")
         onSuccess()
       } else {
         toast.error("전송 중 오류가 발생했습니다. 다시 시도해주세요.")

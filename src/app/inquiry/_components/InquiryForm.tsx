@@ -9,7 +9,7 @@ import toast from "react-hot-toast"
 import { Button } from "@/components/common/Button"
 import { cn } from "@/lib/utils"
 import { inquiryPageFormSchema, type InquiryPageFormData } from "@/lib/validators"
-import { trackConversion } from "@/lib/gtag"
+import { trackConversion, trackLead } from "@/lib/gtag"
 import { trackLeadCreated } from "@/lib/openaiPixel"
 
 const COUNTRY_OPTIONS = ["일본", "영미/영어권"]
@@ -95,6 +95,7 @@ export function InquiryForm({ onSuccess }: InquiryFormProps) {
       if (response.ok && result?.ok === true && typeof result.inquiryId === "string") {
         reset({ interests: [] })
         trackConversion()
+        trackLead("inquiry")
         trackLeadCreated(result.inquiryId)
         onSuccess()
       } else {

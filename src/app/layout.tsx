@@ -1,9 +1,7 @@
 import type { Metadata } from "next"
 import Script from "next/script"
-import { Suspense } from "react"
 import "./globals.css"
 import { ClientProviders } from "@/components/providers/ClientProviders"
-import { GAProvider } from "@/components/providers/GAProvider"
 import { GA_ID, GOOGLE_ADS_ID } from "@/lib/gtag"
 import { OPENAI_PIXEL_ID, getOpenAIPixelInitScript } from "@/lib/openaiPixel"
 
@@ -103,9 +101,6 @@ export default function RootLayout({
           />
         )}
         <ClientProviders>
-          <Suspense fallback={null}>
-            <GAProvider />
-          </Suspense>
           {children}
         </ClientProviders>
       </body>
