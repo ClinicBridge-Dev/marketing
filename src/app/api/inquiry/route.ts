@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server"
 import { Resend } from "resend"
+import { formatKoreanDateTime, formatKoreanTimestamp } from "@/lib/datetime"
+import { appendSheetRow } from "@/lib/googleSheets"
 import { sendSlackNotification } from "@/lib/slack"
 import { createTrelloCard, testTrelloAuth, type TrelloCardResponse } from "@/lib/trello"
+
+// 구글 시트에서 도입 상담 접수 내역을 쌓는 탭 이름.
+const INQUIRY_SHEET_NAME = "도입상담"
 
 const resendApiKey = process.env.RESEND_API_KEY
 const resend = resendApiKey ? new Resend(resendApiKey) : null
@@ -59,6 +64,7 @@ export async function POST(req: Request) {
     // 접수 건 식별자. 클라이언트는 이 값이 있을 때만 광고 전환(OpenAI lead_created)을 보내고,
     // 같은 값을 event_id로 써서 중복 집계를 막는다. 개인정보와 무관한 무작위 값이다.
     const inquiryId = crypto.randomUUID()
+    const receivedAt = new Date()
 
     const countriesLine = targetCountries.join(", ")
     const interestsLine = interests.join(", ")
@@ -100,7 +106,7 @@ ${businessIntro}
 ${challenges}
 
 ---
-📅 문의 시간: ${new Date().toLocaleString("ko-KR")}
+📅 문의 시간: ${formatKoreanDateTime(receivedAt)}
 🤖 자동 생성된 카드`
           trelloCard = await createTrelloCard(trelloConfig, {
             name: `[문의] ${name} - ${hospitalName}`,
@@ -116,53 +122,77 @@ ${challenges}
       console.warn("⚠️ Trello 환경변수가 설정되지 않아 카드 생성을 건너뜁니다.")
     }
 
-    const slackResult = await sendSlackNotification({
-      text: `도입 상담 신청이 접수되었습니다: ${name} (${hospitalName})`,
-      blocks: [
-        {
-          type: "header",
-          text: { type: "plain_text", text: "📬 도입 상담 신청", emoji: true },
+    // Slack 알림과 시트 저장은 서로 기다릴 필요가 없어 동시에 보낸다. 둘 다 예외를 던지지 않는다.
+    const [slackResult, sheetResult] = await Promise.all([
+      sendSlackNotification({
+        text: `도입 상담 신청이 접수되었습니다: ${name} (${hospitalName})`,
+        blocks: [
+          {
+            type: "header",
+            text: { type: "plain_text", text: "📬 도입 상담 신청", emoji: true },
+          },
+          {
+            type: "section",
+            fields: [
+              { type: "mrkdwn", text: `*병원명/회사명*\n${hospitalName}` },
+              { type: "mrkdwn", text: `*직책/성함*\n${name}` },
+              { type: "mrkdwn", text: `*지역*\n${region}` },
+              { type: "mrkdwn", text: `*홈페이지*\n${website}` },
+              { type: "mrkdwn", text: `*연락처*\n${phone}` },
+              { type: "mrkdwn", text: `*이메일*\n${email}` },
+            ],
+          },
+          {
+            type: "section",
+            fields: [
+              { type: "mrkdwn", text: `*희망 국가*\n${countriesLine}` },
+              { type: "mrkdwn", text: `*관심 서비스*\n${interestsLine}` },
+              { type: "mrkdwn", text: `*기대 해외 환자 월 매출*\n${expectedRevenue}` },
+              { type: "mrkdwn", text: `*월 예산*\n${budget}` },
+              { type: "mrkdwn", text: `*도입 희망 시기*\n${implementationTiming}` },
+            ],
+          },
+          {
+            type: "section",
+            text: { type: "mrkdwn", text: `*병원/사업 소개*\n${businessIntro}` },
+          },
+          {
+            type: "section",
+            text: { type: "mrkdwn", text: `*현재 겪고 있는 어려움*\n${challenges}` },
+          },
+          {
+            type: "context",
+            elements: [
+              { type: "mrkdwn", text: `접수 시간: ${formatKoreanDateTime(receivedAt)}` },
+              ...(trelloCard?.shortUrl
+                ? [{ type: "mrkdwn" as const, text: `<${trelloCard.shortUrl}|Trello 카드 바로가기>` }]
+                : []),
+            ],
+          },
+        ],
+      }),
+      appendSheetRow({
+        sheet: INQUIRY_SHEET_NAME,
+        record: {
+          "접수 시간": formatKoreanTimestamp(receivedAt),
+          "병원명/회사명": hospitalName,
+          "직책/성함": name,
+          지역: region,
+          홈페이지: website,
+          연락처: phone,
+          이메일: email,
+          "희망 국가": countriesLine,
+          "관심 서비스": interestsLine,
+          "기대 해외 환자 월 매출": expectedRevenue,
+          "월 예산": budget,
+          "도입 희망 시기": implementationTiming,
+          "병원/사업 소개": businessIntro,
+          "현재 겪고 있는 어려움": challenges,
+          "개인정보 수집 동의": "동의",
+          "Trello 카드": trelloCard?.shortUrl ?? "",
         },
-        {
-          type: "section",
-          fields: [
-            { type: "mrkdwn", text: `*병원명/회사명*\n${hospitalName}` },
-            { type: "mrkdwn", text: `*직책/성함*\n${name}` },
-            { type: "mrkdwn", text: `*지역*\n${region}` },
-            { type: "mrkdwn", text: `*홈페이지*\n${website}` },
-            { type: "mrkdwn", text: `*연락처*\n${phone}` },
-            { type: "mrkdwn", text: `*이메일*\n${email}` },
-          ],
-        },
-        {
-          type: "section",
-          fields: [
-            { type: "mrkdwn", text: `*희망 국가*\n${countriesLine}` },
-            { type: "mrkdwn", text: `*관심 서비스*\n${interestsLine}` },
-            { type: "mrkdwn", text: `*기대 해외 환자 월 매출*\n${expectedRevenue}` },
-            { type: "mrkdwn", text: `*월 예산*\n${budget}` },
-            { type: "mrkdwn", text: `*도입 희망 시기*\n${implementationTiming}` },
-          ],
-        },
-        {
-          type: "section",
-          text: { type: "mrkdwn", text: `*병원/사업 소개*\n${businessIntro}` },
-        },
-        {
-          type: "section",
-          text: { type: "mrkdwn", text: `*현재 겪고 있는 어려움*\n${challenges}` },
-        },
-        {
-          type: "context",
-          elements: [
-            { type: "mrkdwn", text: `접수 시간: ${new Date().toLocaleString("ko-KR")}` },
-            ...(trelloCard?.shortUrl
-              ? [{ type: "mrkdwn" as const, text: `<${trelloCard.shortUrl}|Trello 카드 바로가기>` }]
-              : []),
-          ],
-        },
-      ],
-    })
+      }),
+    ])
 
     if (!slackResult.ok && !slackResult.skipped) {
       console.error("❌ Slack 알림 전송 실패:", slackResult)
@@ -191,6 +221,7 @@ ${challenges}
         trelloCardId: trelloCard?.id ?? null,
         trelloCardShortUrl: trelloCard?.shortUrl ?? null,
         slackNotified: slackResult.ok || slackResult.skipped || false,
+        sheetSaved: sheetResult.ok,
       })
     }
 
@@ -226,7 +257,7 @@ ${challenges}
           </div>
           <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e9ecef; color: #6c757d; font-size: 14px;">
             <p>이 이메일은 클리닉브릿지 웹사이트(/inquiry)를 통해 자동으로 발송되었습니다.</p>
-            <p>발송 시간: ${new Date().toLocaleString("ko-KR")}</p>
+            <p>접수 시간: ${formatKoreanDateTime(receivedAt)}</p>
           </div>
         </div>
       `,
@@ -238,6 +269,7 @@ ${challenges}
       trelloCardId: trelloCard?.id ?? null,
       trelloCardShortUrl: trelloCard?.shortUrl ?? null,
       slackNotified: slackResult.ok || slackResult.skipped || false,
+      sheetSaved: sheetResult.ok,
     })
   } catch (error) {
     console.error("Inquiry form error:", error)

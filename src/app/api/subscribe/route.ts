@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { Resend } from "resend"
+import { formatKoreanDateTime } from "@/lib/datetime"
 
 // Check if Resend API key is available
 const resendApiKey = process.env.RESEND_API_KEY
@@ -57,7 +58,7 @@ export async function POST(req: Request) {
           
           <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e9ecef; color: #6c757d; font-size: 14px;">
             <p>이 이메일은 클리닉브릿지 웹사이트를 통해 자동으로 발송되었습니다.</p>
-            <p>발송 시간: ${new Date().toLocaleString('ko-KR')}</p>
+            <p>발송 시간: ${formatKoreanDateTime()}</p>
           </div>
         </div>
       `,
