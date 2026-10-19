@@ -3,6 +3,7 @@ import { Resend } from "resend"
 import { formatKoreanDateTime, formatKoreanTimestamp } from "@/lib/datetime"
 import { appendSheetRow } from "@/lib/googleSheets"
 import { sendSlackNotification } from "@/lib/slack"
+import { createInquiryEventId } from "@/lib/inquiryEventId"
 import { createTrelloCard, testTrelloAuth, type TrelloCardResponse } from "@/lib/trello"
 
 // 구글 시트에서 도입 상담 접수 내역을 쌓는 탭 이름.
@@ -62,9 +63,9 @@ export async function POST(req: Request) {
     }
 
     // 접수 건 식별자. 클라이언트는 이 값이 있을 때만 광고 전환(OpenAI lead_created)을 보내고,
-    // 같은 값을 event_id로 써서 중복 집계를 막는다. 개인정보와 무관한 무작위 값이다.
-    const inquiryId = crypto.randomUUID()
+    // 같은 값을 event_id로 써서 중복 집계를 막는다. 같은 사람·같은 날 재제출은 같은 값이 된다 (lib/inquiryEventId).
     const receivedAt = new Date()
+    const inquiryId = createInquiryEventId({ email, phone, receivedAt })
 
     const countriesLine = targetCountries.join(", ")
     const interestsLine = interests.join(", ")
@@ -198,70 +199,77 @@ ${challenges}
       console.error("❌ Slack 알림 전송 실패:", slackResult)
     }
 
-    if (!resend) {
+    let emailSent = false
+    if (resend) {
+      // Resend는 실패해도 예외 대신 { error } 를 돌려준다.
+      const { error: emailError } = await resend.emails.send({
+        from: process.env.FROM_EMAIL || "no-reply@clinicbridge.co.kr",
+        to: process.env.TO_EMAIL || "clinicbridge.kr@gmail.com",
+        subject: `[도입 상담] ${hospitalName} 신청 도착`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #333; border-bottom: 2px solid #C1452D; padding-bottom: 10px;">
+              도입 상담 신청
+            </h2>
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <p><strong>병원명/회사명:</strong> ${hospitalName}</p>
+              <p><strong>직책/성함:</strong> ${name}</p>
+              <p><strong>지역:</strong> ${region}</p>
+              <p><strong>홈페이지:</strong> ${website}</p>
+              <p><strong>연락처:</strong> ${phone}</p>
+              <p><strong>이메일:</strong> ${email}</p>
+              <p><strong>희망 국가:</strong> ${countriesLine}</p>
+              <p><strong>관심 서비스:</strong> ${interestsLine}</p>
+              <p><strong>기대 해외 환자 월 매출:</strong> ${expectedRevenue}</p>
+              <p><strong>월 예산:</strong> ${budget}</p>
+              <p><strong>도입 희망 시기:</strong> ${implementationTiming}</p>
+            </div>
+            <div style="background: #fff; border: 1px solid #e9ecef; padding: 20px; border-radius: 8px; margin-bottom: 12px;">
+              <h3 style="color: #C1452D; margin-top: 0;">병원/사업 소개</h3>
+              <p style="white-space: pre-wrap; line-height: 1.6;">${businessIntro}</p>
+            </div>
+            <div style="background: #fff; border: 1px solid #e9ecef; padding: 20px; border-radius: 8px; margin-bottom: 12px;">
+              <h3 style="color: #C1452D; margin-top: 0;">현재 겪고 있는 어려움</h3>
+              <p style="white-space: pre-wrap; line-height: 1.6;">${challenges}</p>
+            </div>
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e9ecef; color: #6c757d; font-size: 14px;">
+              <p>이 이메일은 클리닉브릿지 웹사이트(/inquiry)를 통해 자동으로 발송되었습니다.</p>
+              <p>접수 시간: ${formatKoreanDateTime(receivedAt)}</p>
+            </div>
+          </div>
+        `,
+      })
+      if (emailError) {
+        console.error("❌ 도입 상담 메일 발송 실패:", emailError)
+      } else {
+        emailSent = true
+      }
+    } else {
       console.log("Resend API key not configured. Skipping email send.")
-      console.log("Inquiry form data:", {
-        targetCountries,
-        interests,
-        expectedRevenue,
-        budget,
-        businessIntro,
-        challenges,
-        implementationTiming,
-        hospitalName,
-        name,
-        region,
-        website,
-        phone,
-        email,
-      })
-      return NextResponse.json({
-        ok: true,
-        inquiryId,
-        trelloCardId: trelloCard?.id ?? null,
-        trelloCardShortUrl: trelloCard?.shortUrl ?? null,
-        slackNotified: slackResult.ok || slackResult.skipped || false,
-        sheetSaved: sheetResult.ok,
-      })
     }
 
-    await resend.emails.send({
-      from: process.env.FROM_EMAIL || "no-reply@clinicbridge.co.kr",
-      to: process.env.TO_EMAIL || "clinicbridge.kr@gmail.com",
-      subject: `[도입 상담] ${hospitalName} 신청 도착`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #333; border-bottom: 2px solid #C1452D; padding-bottom: 10px;">
-            도입 상담 신청
-          </h2>
-          <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <p><strong>병원명/회사명:</strong> ${hospitalName}</p>
-            <p><strong>직책/성함:</strong> ${name}</p>
-            <p><strong>지역:</strong> ${region}</p>
-            <p><strong>홈페이지:</strong> ${website}</p>
-            <p><strong>연락처:</strong> ${phone}</p>
-            <p><strong>이메일:</strong> ${email}</p>
-            <p><strong>희망 국가:</strong> ${countriesLine}</p>
-            <p><strong>관심 서비스:</strong> ${interestsLine}</p>
-            <p><strong>기대 해외 환자 월 매출:</strong> ${expectedRevenue}</p>
-            <p><strong>월 예산:</strong> ${budget}</p>
-            <p><strong>도입 희망 시기:</strong> ${implementationTiming}</p>
-          </div>
-          <div style="background: #fff; border: 1px solid #e9ecef; padding: 20px; border-radius: 8px; margin-bottom: 12px;">
-            <h3 style="color: #C1452D; margin-top: 0;">병원/사업 소개</h3>
-            <p style="white-space: pre-wrap; line-height: 1.6;">${businessIntro}</p>
-          </div>
-          <div style="background: #fff; border: 1px solid #e9ecef; padding: 20px; border-radius: 8px; margin-bottom: 12px;">
-            <h3 style="color: #C1452D; margin-top: 0;">현재 겪고 있는 어려움</h3>
-            <p style="white-space: pre-wrap; line-height: 1.6;">${challenges}</p>
-          </div>
-          <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e9ecef; color: #6c757d; font-size: 14px;">
-            <p>이 이메일은 클리닉브릿지 웹사이트(/inquiry)를 통해 자동으로 발송되었습니다.</p>
-            <p>접수 시간: ${formatKoreanDateTime(receivedAt)}</p>
-          </div>
-        </div>
-      `,
-    })
+    // 시트·트렐로·메일·슬랙 중 하나라도 남았을 때만 접수 완료로 본다.
+    // 모두 실패하면 성공 응답(=광고 전환)을 주지 않고, 신청자에게 다시 시도하도록 안내한다.
+    // 단, 로컬 개발에서 저장 채널을 하나도 설정하지 않은 경우는 기존처럼 통과시킨다 (운영에서는 설정 누락을 실패로 본다).
+    const trelloConfigured = Boolean(trelloApiKey && trelloToken && trelloBoardId && trelloListId)
+    const noChannelConfigured = sheetResult.skipped && slackResult.skipped && !trelloConfigured && !resend
+    const localWithoutChannels = noChannelConfigured && process.env.NODE_ENV !== "production"
+    if (localWithoutChannels) {
+      console.warn("⚠️ 저장 채널이 하나도 설정되지 않은 로컬 환경 — 접수 기록 없이 성공 처리합니다.")
+    }
+    const recorded = sheetResult.ok || Boolean(trelloCard) || emailSent || slackResult.ok || localWithoutChannels
+    if (!recorded) {
+      console.error("❌ 도입 상담 접수 기록 실패 — 저장된 채널 없음:", {
+        receivedAt: formatKoreanTimestamp(receivedAt),
+        hospitalName,
+        name,
+        phone,
+        email,
+        sheet: sheetResult,
+        slack: slackResult,
+      })
+      return NextResponse.json({ error: "접수 처리 중 오류가 발생했습니다. 다시 시도해주세요." }, { status: 500 })
+    }
 
     return NextResponse.json({
       ok: true,
@@ -270,6 +278,7 @@ ${challenges}
       trelloCardShortUrl: trelloCard?.shortUrl ?? null,
       slackNotified: slackResult.ok || slackResult.skipped || false,
       sheetSaved: sheetResult.ok,
+      emailSent,
     })
   } catch (error) {
     console.error("Inquiry form error:", error)
