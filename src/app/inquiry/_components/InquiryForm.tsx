@@ -144,6 +144,9 @@ interface InquiryFormProps {
 
 export function InquiryForm({ onSuccess }: InquiryFormProps) {
   const [step, setStep] = useState(0)
+  // 팀 검토용 비교 버전: 주소에 ?layout=single 이 있으면 모든 항목을 한 페이지에 보여준다.
+  // 두 버전 중 하나로 정해지면 이 분기를 지운다.
+  const [singlePage, setSinglePage] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   // 버튼 비활성화(state)는 다음 렌더 후에 반영되므로, 빠른 연타로 같은 신청이 두 번 전송되지 않게 ref로 막는다.
   const submitLockRef = useRef(false)
@@ -170,6 +173,7 @@ export function InquiryForm({ onSuccess }: InquiryFormProps) {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
+    setSinglePage(params.get("layout") === "single")
     const inflow = INFLOW_PARAMS.map((k) => params.get(k)).filter(Boolean).join(" / ")
     if (inflow) setValue("inflow", inflow.slice(0, 200))
   }, [setValue])
@@ -224,8 +228,218 @@ export function InquiryForm({ onSuccess }: InquiryFormProps) {
     }
   }
 
+  // 단계별 입력 항목. 3단계 폼은 한 단계씩, 한 페이지 폼은 모두 이어서 보여준다.
+  const stepBodies = [
+    (          <>
+              <div>
+                <FieldLabel htmlFor="interests" hint={`하나만 선택 · ${PRICE_NOTE}`}>
+                  관심 있는 서비스 *
+                </FieldLabel>
+                <div className="grid gap-3" role="radiogroup">
+                  {INTEREST_OPTIONS.map((option) => (
+                    <ServiceCard
+                      key={option.value}
+                      option={option}
+                      active={selectedInterests[0] === option.value}
+                      // 저장 형식(문자열 배열)은 그대로 두고 한 개만 담는다
+                      onClick={() => setValue("interests", [option.value], { shouldValidate: true })}
+                    />
+                  ))}
+                </div>
+                <ErrorText message={errors.interests?.message} />
+              </div>
+
+              <div>
+                <FieldLabel htmlFor="targetCountries" hint="복수 선택 가능">
+                  해외 마케팅 희망 국가 *
+                </FieldLabel>
+                <div className="flex flex-wrap gap-2">
+                  {COUNTRY_OPTIONS.map((option) => (
+                    <ChoiceChip
+                      key={option}
+                      label={option}
+                      active={selectedCountries.includes(option)}
+                      onClick={() => toggleCountry(option)}
+                    />
+                  ))}
+                </div>
+                <ErrorText message={errors.targetCountries?.message} />
+              </div>
+            </>
+    ),
+    (          <>
+              <div>
+                <FieldLabel htmlFor="expectedRevenue">목표 해외 환자 월 매출 *</FieldLabel>
+                <div className="grid gap-2 sm:grid-cols-3">
+                  {REVENUE_OPTIONS.map((option) => (
+                    <ChoiceChip
+                      key={option}
+                      label={option}
+                      active={selectedRevenue === option}
+                      single
+                      onClick={() => setValue("expectedRevenue", option, { shouldValidate: true })}
+                    />
+                  ))}
+                </div>
+                <ErrorText message={errors.expectedRevenue?.message} />
+              </div>
+
+              <div>
+                <FieldLabel htmlFor="budget">월 마케팅 예산 *</FieldLabel>
+                <input id="budget" {...register("budget")} className={inputClass} placeholder="예: 월 500~1,000만원" />
+                <ErrorText message={errors.budget?.message} />
+              </div>
+
+              <div>
+                <FieldLabel htmlFor="businessIntro">병원/사업 소개 *</FieldLabel>
+                <textarea
+                  id="businessIntro"
+                  {...register("businessIntro")}
+                  rows={4}
+                  maxLength={800}
+                  className={cn(inputClass, "resize-none")}
+                  placeholder="진료과, 병원 규모, 주요 시술/서비스 등을 자유롭게 적어주세요"
+                />
+                <div className="mt-1 flex justify-end text-xs text-gray-400">{businessIntro.length}/800</div>
+                <ErrorText message={errors.businessIntro?.message} />
+              </div>
+
+              <div>
+                <FieldLabel htmlFor="challenges">현재 겪고 있는 어려움 *</FieldLabel>
+                <textarea
+                  id="challenges"
+                  {...register("challenges")}
+                  rows={4}
+                  maxLength={800}
+                  className={cn(inputClass, "resize-none")}
+                  placeholder="글로벌 환자 유치, 콘텐츠, 채널 운영 등에서 겪고 있는 어려움을 적어주세요"
+                />
+                <div className="mt-1 flex justify-end text-xs text-gray-400">{challenges.length}/800</div>
+                <ErrorText message={errors.challenges?.message} />
+              </div>
+
+              <div>
+                <FieldLabel htmlFor="implementationTiming">도입 희망 시기 *</FieldLabel>
+                <input
+                  id="implementationTiming"
+                  {...register("implementationTiming")}
+                  className={inputClass}
+                  placeholder="예: 1개월 이내"
+                />
+                <ErrorText message={errors.implementationTiming?.message} />
+              </div>
+            </>
+    ),
+    (          <>
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                <div>
+                  <FieldLabel htmlFor="hospitalName">병원명/회사명 *</FieldLabel>
+                  <input id="hospitalName" {...register("hospitalName")} className={inputClass} placeholder="OO의원" />
+                  <ErrorText message={errors.hospitalName?.message} />
+                </div>
+                <div>
+                  <FieldLabel htmlFor="name">직책/성함 *</FieldLabel>
+                  <input id="name" {...register("name")} className={inputClass} placeholder="대표원장 홍길동" />
+                  <ErrorText message={errors.name?.message} />
+                </div>
+                <div>
+                  <FieldLabel htmlFor="region">지역 *</FieldLabel>
+                  <input id="region" {...register("region")} className={inputClass} placeholder="서울 강남구" />
+                  <ErrorText message={errors.region?.message} />
+                </div>
+                <div>
+                  <FieldLabel htmlFor="website">홈페이지 *</FieldLabel>
+                  <input
+                    id="website"
+                    {...register("website")}
+                    className={inputClass}
+                    placeholder="https:// 또는 '없음'"
+                  />
+                  <ErrorText message={errors.website?.message} />
+                </div>
+                <div>
+                  <FieldLabel htmlFor="phone">연락처 *</FieldLabel>
+                  <input
+                    id="phone"
+                    type="tel"
+                    inputMode="tel"
+                    {...register("phone")}
+                    className={inputClass}
+                    placeholder="010-1234-5678"
+                  />
+                  <ErrorText message={errors.phone?.message} />
+                </div>
+                <div>
+                  <FieldLabel htmlFor="email">이메일 *</FieldLabel>
+                  <input
+                    id="email"
+                    type="email"
+                    inputMode="email"
+                    {...register("email")}
+                    className={inputClass}
+                    placeholder="name@hospital.com"
+                  />
+                  <ErrorText message={errors.email?.message} />
+                </div>
+              </div>
+
+              <div>
+                <label className="flex cursor-pointer items-start gap-2 text-sm text-gray-600">
+                  <input type="checkbox" {...register("privacyConsent")} className="mt-0.5 h-4 w-4 accent-primary" />
+                  <span>
+                    <Link href="/privacy" target="_blank" className="text-primary underline underline-offset-2">
+                      개인정보 수집·이용
+                    </Link>
+                    에 동의합니다 *
+                  </span>
+                </label>
+                <ErrorText message={errors.privacyConsent?.message} />
+              </div>
+            </>
+    ),
+  ]
+
   const current = STEPS[step]
   const isLast = step === STEPS.length - 1
+
+  const submitButton = (
+    <Button type="submit" disabled={isSubmitting} variant="gradient" size="lg" className="flex-1">
+      {isSubmitting ? (
+        <>
+          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+          전송 중...
+        </>
+      ) : (
+        "상담 신청하기"
+      )}
+    </Button>
+  )
+
+  if (singlePage) {
+    return (
+      <form onSubmit={handleSubmit(onSubmit)} noValidate>
+        <input type="text" {...register("hp")} className="hidden" tabIndex={-1} autoComplete="off" />
+        <input type="hidden" {...register("inflow")} />
+        <div className="space-y-12">
+          {STEPS.map((s, i) => (
+            <section key={s.title}>
+              <div className="flex items-start gap-3 border-b border-gray-200 pb-4">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
+                  {i + 1}
+                </span>
+                <div>
+                  <h2 className="text-lg font-bold text-gray-900 sm:text-xl">{s.title}</h2>
+                  <p className="mt-1 text-sm text-gray-600">{s.description}</p>
+                </div>
+              </div>
+              <div className="mt-6 space-y-8">{stepBodies[i]}</div>
+            </section>
+          ))}
+        </div>
+        <div className="mt-10 flex">{submitButton}</div>
+      </form>
+    )
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -250,178 +464,7 @@ export function InquiryForm({ onSuccess }: InquiryFormProps) {
       </div>
 
       <div className="mt-8 space-y-8">
-        {step === 0 && (
-          <>
-            <div>
-              <FieldLabel htmlFor="interests" hint={`하나만 선택 · ${PRICE_NOTE}`}>
-                관심 있는 서비스 *
-              </FieldLabel>
-              <div className="grid gap-3" role="radiogroup">
-                {INTEREST_OPTIONS.map((option) => (
-                  <ServiceCard
-                    key={option.value}
-                    option={option}
-                    active={selectedInterests[0] === option.value}
-                    // 저장 형식(문자열 배열)은 그대로 두고 한 개만 담는다
-                    onClick={() => setValue("interests", [option.value], { shouldValidate: true })}
-                  />
-                ))}
-              </div>
-              <ErrorText message={errors.interests?.message} />
-            </div>
-
-            <div>
-              <FieldLabel htmlFor="targetCountries" hint="복수 선택 가능">
-                해외 마케팅 희망 국가 *
-              </FieldLabel>
-              <div className="flex flex-wrap gap-2">
-                {COUNTRY_OPTIONS.map((option) => (
-                  <ChoiceChip
-                    key={option}
-                    label={option}
-                    active={selectedCountries.includes(option)}
-                    onClick={() => toggleCountry(option)}
-                  />
-                ))}
-              </div>
-              <ErrorText message={errors.targetCountries?.message} />
-            </div>
-          </>
-        )}
-
-        {step === 1 && (
-          <>
-            <div>
-              <FieldLabel htmlFor="expectedRevenue">목표 해외 환자 월 매출 *</FieldLabel>
-              <div className="grid gap-2 sm:grid-cols-3">
-                {REVENUE_OPTIONS.map((option) => (
-                  <ChoiceChip
-                    key={option}
-                    label={option}
-                    active={selectedRevenue === option}
-                    single
-                    onClick={() => setValue("expectedRevenue", option, { shouldValidate: true })}
-                  />
-                ))}
-              </div>
-              <ErrorText message={errors.expectedRevenue?.message} />
-            </div>
-
-            <div>
-              <FieldLabel htmlFor="budget">월 마케팅 예산 *</FieldLabel>
-              <input id="budget" {...register("budget")} className={inputClass} placeholder="예: 월 500~1,000만원" />
-              <ErrorText message={errors.budget?.message} />
-            </div>
-
-            <div>
-              <FieldLabel htmlFor="businessIntro">병원/사업 소개 *</FieldLabel>
-              <textarea
-                id="businessIntro"
-                {...register("businessIntro")}
-                rows={4}
-                maxLength={800}
-                className={cn(inputClass, "resize-none")}
-                placeholder="진료과, 병원 규모, 주요 시술/서비스 등을 자유롭게 적어주세요"
-              />
-              <div className="mt-1 flex justify-end text-xs text-gray-400">{businessIntro.length}/800</div>
-              <ErrorText message={errors.businessIntro?.message} />
-            </div>
-
-            <div>
-              <FieldLabel htmlFor="challenges">현재 겪고 있는 어려움 *</FieldLabel>
-              <textarea
-                id="challenges"
-                {...register("challenges")}
-                rows={4}
-                maxLength={800}
-                className={cn(inputClass, "resize-none")}
-                placeholder="글로벌 환자 유치, 콘텐츠, 채널 운영 등에서 겪고 있는 어려움을 적어주세요"
-              />
-              <div className="mt-1 flex justify-end text-xs text-gray-400">{challenges.length}/800</div>
-              <ErrorText message={errors.challenges?.message} />
-            </div>
-
-            <div>
-              <FieldLabel htmlFor="implementationTiming">도입 희망 시기 *</FieldLabel>
-              <input
-                id="implementationTiming"
-                {...register("implementationTiming")}
-                className={inputClass}
-                placeholder="예: 1개월 이내"
-              />
-              <ErrorText message={errors.implementationTiming?.message} />
-            </div>
-          </>
-        )}
-
-        {step === 2 && (
-          <>
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-              <div>
-                <FieldLabel htmlFor="hospitalName">병원명/회사명 *</FieldLabel>
-                <input id="hospitalName" {...register("hospitalName")} className={inputClass} placeholder="OO의원" />
-                <ErrorText message={errors.hospitalName?.message} />
-              </div>
-              <div>
-                <FieldLabel htmlFor="name">직책/성함 *</FieldLabel>
-                <input id="name" {...register("name")} className={inputClass} placeholder="대표원장 홍길동" />
-                <ErrorText message={errors.name?.message} />
-              </div>
-              <div>
-                <FieldLabel htmlFor="region">지역 *</FieldLabel>
-                <input id="region" {...register("region")} className={inputClass} placeholder="서울 강남구" />
-                <ErrorText message={errors.region?.message} />
-              </div>
-              <div>
-                <FieldLabel htmlFor="website">홈페이지 *</FieldLabel>
-                <input
-                  id="website"
-                  {...register("website")}
-                  className={inputClass}
-                  placeholder="https:// 또는 '없음'"
-                />
-                <ErrorText message={errors.website?.message} />
-              </div>
-              <div>
-                <FieldLabel htmlFor="phone">연락처 *</FieldLabel>
-                <input
-                  id="phone"
-                  type="tel"
-                  inputMode="tel"
-                  {...register("phone")}
-                  className={inputClass}
-                  placeholder="010-1234-5678"
-                />
-                <ErrorText message={errors.phone?.message} />
-              </div>
-              <div>
-                <FieldLabel htmlFor="email">이메일 *</FieldLabel>
-                <input
-                  id="email"
-                  type="email"
-                  inputMode="email"
-                  {...register("email")}
-                  className={inputClass}
-                  placeholder="name@hospital.com"
-                />
-                <ErrorText message={errors.email?.message} />
-              </div>
-            </div>
-
-            <div>
-              <label className="flex cursor-pointer items-start gap-2 text-sm text-gray-600">
-                <input type="checkbox" {...register("privacyConsent")} className="mt-0.5 h-4 w-4 accent-primary" />
-                <span>
-                  <Link href="/privacy" target="_blank" className="text-primary underline underline-offset-2">
-                    개인정보 수집·이용
-                  </Link>
-                  에 동의합니다 *
-                </span>
-              </label>
-              <ErrorText message={errors.privacyConsent?.message} />
-            </div>
-          </>
-        )}
+        {stepBodies[step]}
       </div>
 
       {/* 단계 이동 */}
@@ -436,16 +479,7 @@ export function InquiryForm({ onSuccess }: InquiryFormProps) {
           </button>
         )}
         {isLast ? (
-          <Button type="submit" disabled={isSubmitting} variant="gradient" size="lg" className="flex-1">
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                전송 중...
-              </>
-            ) : (
-              "상담 신청하기"
-            )}
-          </Button>
+          submitButton
         ) : (
           <Button type="button" onClick={handleNext} variant="gradient" size="lg" className="flex-1">
             다음
