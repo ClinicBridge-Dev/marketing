@@ -31,8 +31,8 @@ export type DiagnosisFormData = z.infer<typeof diagnosisFormSchema>
 export const inquiryPageFormSchema = z.object({
   // 정성 질문
   targetCountries: z.array(z.string()).min(1, "해외 마케팅 희망 국가를 1개 이상 선택해주세요"),
-  interests: z.array(z.string()).min(1, "관심 있는 서비스를 1개 이상 선택해주세요"),
-  expectedRevenue: z.string().min(1, "기대 해외 환자 월 매출을 입력해주세요"),
+  interests: z.array(z.string()).min(1, "관심 있는 서비스를 선택해주세요"),
+  expectedRevenue: z.string().min(1, "타겟 국가 목표 월 매출을 선택해주세요"),
   budget: z.string().min(1, "월 예산 범위를 입력해주세요"),
   businessIntro: z.string().min(10, "병원/사업 소개를 10자 이상 입력해주세요").max(800),
   challenges: z.string().min(10, "현재 겪고 있는 어려움을 10자 이상 입력해주세요").max(800),
@@ -46,6 +46,7 @@ export const inquiryPageFormSchema = z.object({
   email: z.string().email("올바른 이메일을 입력해주세요"),
   privacyConsent: z.literal(true, "개인정보 수집·이용에 동의해주세요"),
   hp: z.string().optional(), // honeypot field
+  inflow: z.string().max(200).optional(), // 유입 경로(utm), 주소에서 자동으로 채움
 })
 
 export type InquiryPageFormData = z.infer<typeof inquiryPageFormSchema>
