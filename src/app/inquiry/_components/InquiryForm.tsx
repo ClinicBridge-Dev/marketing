@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import Link from "next/link"
@@ -11,9 +11,10 @@ import { cn } from "@/lib/utils"
 import { inquiryPageFormSchema, type InquiryPageFormData } from "@/lib/validators"
 import { trackConversion, trackLead } from "@/lib/gtag"
 import { trackLeadCreated } from "@/lib/openaiPixel"
+import { COUNTRY_OPTIONS, INTEREST_OPTIONS, PRICE_NOTE, REVENUE_OPTIONS } from "@/data/inquiryOptions"
 
-const COUNTRY_OPTIONS = ["일본", "영미/영어권"]
-const INTEREST_OPTIONS = ["LINE 계정 세팅", "바이럴 콘텐츠 마케팅 패키지", "월 정기 운영 플랜", "애드온 서비스", "기타 문의"]
+// 유입 경로로 남길 주소 파라미터 (예: 웹 리포트의 무료 진단 버튼은 utm_medium=report)
+const INFLOW_PARAMS = ["utm_source", "utm_medium", "utm_campaign", "utm_content"] as const
 
 interface FieldLabelProps {
   htmlFor: string
@@ -61,6 +62,13 @@ export function InquiryForm({ onSuccess }: InquiryFormProps) {
   const challenges = watch("challenges") ?? ""
   const selectedCountries = watch("targetCountries") ?? []
   const selectedInterests = watch("interests") ?? []
+  const selectedRevenue = watch("expectedRevenue")
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const inflow = INFLOW_PARAMS.map((k) => params.get(k)).filter(Boolean).join(" / ")
+    if (inflow) setValue("inflow", inflow.slice(0, 200))
+  }, [setValue])
 
   const toggleCountry = (option: string) => {
     const next = selectedCountries.includes(option)
@@ -93,7 +101,7 @@ export function InquiryForm({ onSuccess }: InquiryFormProps) {
       // 서버가 신청을 실제로 접수한 경우(ok + inquiryId)에만 성공 처리와 광고 전환을 보낸다.
       // 전환은 이 제출 핸들러에서만 보내므로 완료 페이지 새로고침·재렌더링으로 다시 집계되지 않는다.
       if (response.ok && result?.ok === true && typeof result.inquiryId === "string") {
-        reset({ interests: [] })
+        reset({ targetCountries: [], interests: [] })
         trackConversion()
         trackLead("inquiry")
         trackLeadCreated(result.inquiryId)
@@ -113,6 +121,7 @@ export function InquiryForm({ onSuccess }: InquiryFormProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
       <input type="text" {...register("hp")} className="hidden" tabIndex={-1} autoComplete="off" />
+      <input type="hidden" {...register("inflow")} />
 
       {/* 정성 질문 */}
       <section className="space-y-6">
@@ -147,14 +156,53 @@ export function InquiryForm({ onSuccess }: InquiryFormProps) {
 
         <div>
           <FieldLabel htmlFor="interests">관심 있는 서비스 * (복수 선택 가능)</FieldLabel>
-          <div className="flex flex-wrap gap-2">
+          <div className="grid gap-2">
             {INTEREST_OPTIONS.map((option) => {
-              const active = selectedInterests.includes(option)
+              const active = selectedInterests.includes(option.value)
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() => toggleInterest(option.value)}
+                  className={cn(
+                    "w-full text-left px-4 py-3 rounded-lg border transition-colors",
+                    active ? "border-primary bg-primary/5" : "bg-white border-gray-300 hover:border-primary/50"
+                  )}
+                >
+                  <span className="flex items-start justify-between gap-3">
+                    <span className={cn("text-sm font-semibold", active ? "text-primary" : "text-gray-900")}>
+                      {option.value}
+                    </span>
+                    <span
+                      className={cn(
+                        "mt-0.5 h-4 w-4 shrink-0 rounded border",
+                        active ? "bg-primary border-primary" : "border-gray-300"
+                      )}
+                      aria-hidden
+                    />
+                  </span>
+                  <span className="block text-sm text-gray-600 mt-1">{option.description}</span>
+                  {option.price && <span className="block text-xs text-gray-500 mt-1">{option.price}</span>}
+                </button>
+              )
+            })}
+          </div>
+          <p className="mt-1.5 text-xs text-gray-400">{PRICE_NOTE}</p>
+          <ErrorText message={errors.interests?.message} />
+        </div>
+
+        <div>
+          <FieldLabel htmlFor="expectedRevenue">목표 해외 환자 월 매출 *</FieldLabel>
+          <div className="flex flex-wrap gap-2">
+            {REVENUE_OPTIONS.map((option) => {
+              const active = selectedRevenue === option
               return (
                 <button
                   key={option}
                   type="button"
-                  onClick={() => toggleInterest(option)}
+                  aria-pressed={active}
+                  onClick={() => setValue("expectedRevenue", option, { shouldValidate: true })}
                   className={cn(
                     "px-4 py-2 text-sm rounded-full border transition-colors",
                     active
@@ -167,17 +215,6 @@ export function InquiryForm({ onSuccess }: InquiryFormProps) {
               )
             })}
           </div>
-          <ErrorText message={errors.interests?.message} />
-        </div>
-
-        <div>
-          <FieldLabel htmlFor="expectedRevenue">기대 해외 환자 월 매출 *</FieldLabel>
-          <input
-            id="expectedRevenue"
-            {...register("expectedRevenue")}
-            className={inputClass}
-            placeholder="예: 월 1,000만원"
-          />
           <ErrorText message={errors.expectedRevenue?.message} />
         </div>
 
@@ -187,7 +224,7 @@ export function InquiryForm({ onSuccess }: InquiryFormProps) {
             id="budget"
             {...register("budget")}
             className={inputClass}
-            placeholder="예: 월 300~500만원"
+            placeholder="예: 월 500~1,000만원"
           />
           <ErrorText message={errors.budget?.message} />
         </div>

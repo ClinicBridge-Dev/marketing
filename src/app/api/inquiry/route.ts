@@ -30,6 +30,7 @@ export async function POST(req: Request) {
       email,
       privacyConsent,
       hp,
+      inflow,
     } = await req.json()
 
     if (hp) {
@@ -69,6 +70,8 @@ export async function POST(req: Request) {
 
     const countriesLine = targetCountries.join(", ")
     const interestsLine = interests.join(", ")
+    // 유입 경로(utm). 폼이 주소에서 자동으로 채운다. 없으면 직접 방문.
+    const inflowLine = typeof inflow === "string" && inflow.trim() ? inflow.trim().slice(0, 200) : "직접 방문"
 
     let trelloCard: TrelloCardResponse | null = null
     const trelloApiKey = process.env.TRELLO_API_KEY
@@ -96,9 +99,10 @@ export async function POST(req: Request) {
 **🌍 마케팅 정보**
 • **희망 국가:** ${countriesLine}
 • **관심 서비스:** ${interestsLine}
-• **기대 해외 환자 월 매출:** ${expectedRevenue}
+• **목표 해외 환자 월 매출:** ${expectedRevenue}
 • **월 예산:** ${budget}
 • **도입 희망 시기:** ${implementationTiming}
+• **유입 경로:** ${inflowLine}
 
 **💬 병원/사업 소개**
 ${businessIntro}
@@ -148,9 +152,10 @@ ${challenges}
             fields: [
               { type: "mrkdwn", text: `*희망 국가*\n${countriesLine}` },
               { type: "mrkdwn", text: `*관심 서비스*\n${interestsLine}` },
-              { type: "mrkdwn", text: `*기대 해외 환자 월 매출*\n${expectedRevenue}` },
+              { type: "mrkdwn", text: `*목표 해외 환자 월 매출*\n${expectedRevenue}` },
               { type: "mrkdwn", text: `*월 예산*\n${budget}` },
               { type: "mrkdwn", text: `*도입 희망 시기*\n${implementationTiming}` },
+              { type: "mrkdwn", text: `*유입 경로*\n${inflowLine}` },
             ],
           },
           {
@@ -184,9 +189,11 @@ ${challenges}
           이메일: email,
           "희망 국가": countriesLine,
           "관심 서비스": interestsLine,
+          // 폼 문구는 '목표 해외 환자 월 매출'로 바뀌었지만, 시트 열은 기존 데이터와 이어지도록 이름을 유지한다
           "기대 해외 환자 월 매출": expectedRevenue,
           "월 예산": budget,
           "도입 희망 시기": implementationTiming,
+          "유입 경로": inflowLine,
           "병원/사업 소개": businessIntro,
           "현재 겪고 있는 어려움": challenges,
           "개인정보 수집 동의": "동의",
@@ -220,9 +227,10 @@ ${challenges}
               <p><strong>이메일:</strong> ${email}</p>
               <p><strong>희망 국가:</strong> ${countriesLine}</p>
               <p><strong>관심 서비스:</strong> ${interestsLine}</p>
-              <p><strong>기대 해외 환자 월 매출:</strong> ${expectedRevenue}</p>
+              <p><strong>목표 해외 환자 월 매출:</strong> ${expectedRevenue}</p>
               <p><strong>월 예산:</strong> ${budget}</p>
               <p><strong>도입 희망 시기:</strong> ${implementationTiming}</p>
+              <p><strong>유입 경로:</strong> ${inflowLine}</p>
             </div>
             <div style="background: #fff; border: 1px solid #e9ecef; padding: 20px; border-radius: 8px; margin-bottom: 12px;">
               <h3 style="color: #C1452D; margin-top: 0;">병원/사업 소개</h3>
