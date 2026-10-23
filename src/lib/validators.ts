@@ -31,7 +31,7 @@ export type DiagnosisFormData = z.infer<typeof diagnosisFormSchema>
 export const inquiryPageFormSchema = z.object({
   // 정성 질문
   targetCountries: z.array(z.string()).min(1, "해외 마케팅 희망 국가를 1개 이상 선택해주세요"),
-  interests: z.array(z.string()).min(1, "관심 있는 서비스를 1개 이상 선택해주세요"),
+  interests: z.array(z.string()).min(1, "관심 있는 서비스를 선택해주세요"),
   expectedRevenue: z.string().min(1, "목표 해외 환자 월 매출을 선택해주세요"),
   budget: z.string().min(1, "월 예산 범위를 입력해주세요"),
   businessIntro: z.string().min(10, "병원/사업 소개를 10자 이상 입력해주세요").max(800),

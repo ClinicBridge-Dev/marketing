@@ -63,11 +63,13 @@ function ErrorText({ message }: { message?: string }) {
   return <p className="mt-1.5 text-sm text-red-600">{message}</p>
 }
 
-function CheckMark({ active }: { active: boolean }) {
+/** 복수 선택은 네모(체크), 하나만 고르는 선택은 동그라미로 구분한다 */
+function CheckMark({ active, single = false }: { active: boolean; single?: boolean }) {
   return (
     <span
       className={cn(
-        "flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-colors",
+        "flex h-5 w-5 shrink-0 items-center justify-center border transition-colors",
+        single ? "rounded-full" : "rounded-md",
         active ? "border-primary bg-primary text-white" : "border-gray-300 bg-white"
       )}
       aria-hidden
@@ -78,7 +80,17 @@ function CheckMark({ active }: { active: boolean }) {
 }
 
 /** 국가·목표 매출처럼 짧은 선택지. 선택하면 체크 표시가 붙는다. */
-function ChoiceChip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+function ChoiceChip({
+  label,
+  active,
+  onClick,
+  single = false,
+}: {
+  label: string
+  active: boolean
+  onClick: () => void
+  single?: boolean
+}) {
   return (
     <button
       type="button"
@@ -91,45 +103,33 @@ function ChoiceChip({ label, active, onClick }: { label: string; active: boolean
           : "border-gray-300 bg-white text-gray-700 hover:border-primary/50"
       )}
     >
-      <CheckMark active={active} />
+      <CheckMark active={active} single={single} />
       {label}
     </button>
   )
 }
 
-/** 관심 서비스 카드. 상품은 가격을, 요금 방식이 여러 개면 방식별로 나눠 보여준다. */
+/** 관심 서비스 카드(하나만 선택). 가격이 없는 선택지는 점선으로 상품과 구분한다. */
 function ServiceCard({ option, active, onClick }: { option: InterestOption; active: boolean; onClick: () => void }) {
-  const isProduct = Boolean(option.prices?.length)
   return (
     <button
       type="button"
-      aria-pressed={active}
+      role="radio"
+      aria-checked={active}
       onClick={onClick}
       className={cn(
         "flex w-full items-start gap-3 rounded-2xl border p-4 text-left transition-colors sm:p-5",
-        isProduct ? "border-solid" : "border-dashed",
+        option.price ? "border-solid" : "border-dashed",
         active ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-gray-200 bg-white hover:border-primary/50"
       )}
     >
       <span className="mt-0.5">
-        <CheckMark active={active} />
+        <CheckMark active={active} single />
       </span>
       <span className="min-w-0 flex-1">
         <span className="block text-base font-bold text-gray-900">{option.value}</span>
         <span className="mt-1 block text-sm leading-relaxed text-gray-600">{option.description}</span>
-        {option.prices && option.prices.length > 1 && (
-          <span className="mt-3 grid gap-2 sm:grid-cols-2">
-            {option.prices.map((plan) => (
-              <span key={plan.value} className="rounded-xl bg-gray-50 px-3 py-2.5">
-                <span className="block text-xs font-semibold text-gray-500">{plan.label}</span>
-                <span className="mt-0.5 block text-sm font-bold text-gray-900">{plan.value}</span>
-              </span>
-            ))}
-          </span>
-        )}
-        {option.prices && option.prices.length === 1 && (
-          <span className="mt-2 block text-sm font-bold text-gray-900">{option.prices[0].value}</span>
-        )}
+        {option.price && <span className="mt-2 block text-sm font-bold text-gray-900">{option.price}</span>}
       </span>
     </button>
   )
@@ -174,9 +174,11 @@ export function InquiryForm({ onSuccess }: InquiryFormProps) {
     if (inflow) setValue("inflow", inflow.slice(0, 200))
   }, [setValue])
 
-  const toggle = (field: "targetCountries" | "interests", current: string[], option: string) => {
-    const next = current.includes(option) ? current.filter((i) => i !== option) : [...current, option]
-    setValue(field, next, { shouldValidate: true })
+  const toggleCountry = (option: string) => {
+    const next = selectedCountries.includes(option)
+      ? selectedCountries.filter((i) => i !== option)
+      : [...selectedCountries, option]
+    setValue("targetCountries", next, { shouldValidate: true })
   }
 
   const goTo = (next: number) => {
@@ -251,16 +253,17 @@ export function InquiryForm({ onSuccess }: InquiryFormProps) {
         {step === 0 && (
           <>
             <div>
-              <FieldLabel htmlFor="interests" hint={`복수 선택 가능 · ${PRICE_NOTE}`}>
+              <FieldLabel htmlFor="interests" hint={`하나만 선택 · ${PRICE_NOTE}`}>
                 관심 있는 서비스 *
               </FieldLabel>
-              <div className="grid gap-3">
+              <div className="grid gap-3" role="radiogroup">
                 {INTEREST_OPTIONS.map((option) => (
                   <ServiceCard
                     key={option.value}
                     option={option}
-                    active={selectedInterests.includes(option.value)}
-                    onClick={() => toggle("interests", selectedInterests, option.value)}
+                    active={selectedInterests[0] === option.value}
+                    // 저장 형식(문자열 배열)은 그대로 두고 한 개만 담는다
+                    onClick={() => setValue("interests", [option.value], { shouldValidate: true })}
                   />
                 ))}
               </div>
@@ -277,7 +280,7 @@ export function InquiryForm({ onSuccess }: InquiryFormProps) {
                     key={option}
                     label={option}
                     active={selectedCountries.includes(option)}
-                    onClick={() => toggle("targetCountries", selectedCountries, option)}
+                    onClick={() => toggleCountry(option)}
                   />
                 ))}
               </div>
@@ -296,6 +299,7 @@ export function InquiryForm({ onSuccess }: InquiryFormProps) {
                     key={option}
                     label={option}
                     active={selectedRevenue === option}
+                    single
                     onClick={() => setValue("expectedRevenue", option, { shouldValidate: true })}
                   />
                 ))}
