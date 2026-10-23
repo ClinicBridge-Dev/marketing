@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import Link from "next/link"
-import { Loader2 } from "lucide-react"
+import { Check, Loader2 } from "lucide-react"
 import toast from "react-hot-toast"
 import { Button } from "@/components/common/Button"
 import { cn } from "@/lib/utils"
@@ -19,12 +19,15 @@ const INFLOW_PARAMS = ["utm_source", "utm_medium", "utm_campaign", "utm_content"
 interface FieldLabelProps {
   htmlFor: string
   children: React.ReactNode
+  /** 제목 옆에 옅게 붙는 안내 (예: 복수 선택 가능) */
+  hint?: string
 }
 
-function FieldLabel({ htmlFor, children }: FieldLabelProps) {
+function FieldLabel({ htmlFor, children, hint }: FieldLabelProps) {
   return (
-    <label htmlFor={htmlFor} className="block text-sm font-semibold text-gray-900 mb-1.5">
+    <label htmlFor={htmlFor} className="block text-sm font-semibold text-gray-900 mb-2">
       {children}
+      {hint && <span className="ml-1.5 text-xs font-normal text-gray-500">{hint}</span>}
     </label>
   )
 }
@@ -130,7 +133,7 @@ export function InquiryForm({ onSuccess }: InquiryFormProps) {
         </h2>
 
         <div>
-          <FieldLabel htmlFor="targetCountries">해외 마케팅 희망 국가 * (복수 선택 가능)</FieldLabel>
+          <FieldLabel htmlFor="targetCountries" hint="복수 선택 가능">해외 마케팅 희망 국가 *</FieldLabel>
           <div className="flex flex-wrap gap-2">
             {COUNTRY_OPTIONS.map((option) => {
               const active = selectedCountries.includes(option)
@@ -155,10 +158,14 @@ export function InquiryForm({ onSuccess }: InquiryFormProps) {
         </div>
 
         <div>
-          <FieldLabel htmlFor="interests">관심 있는 서비스 * (복수 선택 가능)</FieldLabel>
-          <div className="grid gap-2">
+          <FieldLabel htmlFor="interests" hint={`복수 선택 가능 · ${PRICE_NOTE}`}>
+            관심 있는 서비스 *
+          </FieldLabel>
+          <div className="grid gap-2.5">
             {INTEREST_OPTIONS.map((option) => {
               const active = selectedInterests.includes(option.value)
+              // 가격이 없는 선택지(아직 정하지 못했어요)는 상품 카드와 구분되게 점선으로 둔다
+              const isProduct = Boolean(option.price)
               return (
                 <button
                   key={option.value}
@@ -166,29 +173,37 @@ export function InquiryForm({ onSuccess }: InquiryFormProps) {
                   aria-pressed={active}
                   onClick={() => toggleInterest(option.value)}
                   className={cn(
-                    "w-full text-left px-4 py-3 rounded-lg border transition-colors",
-                    active ? "border-primary bg-primary/5" : "bg-white border-gray-300 hover:border-primary/50"
+                    "flex w-full items-start gap-3 rounded-xl border px-4 py-3.5 text-left transition-colors",
+                    isProduct ? "border-solid" : "border-dashed",
+                    active
+                      ? "border-primary bg-primary/5 ring-1 ring-primary"
+                      : "border-gray-300 bg-white hover:border-primary/50"
                   )}
                 >
-                  <span className="flex items-start justify-between gap-3">
-                    <span className={cn("text-sm font-semibold", active ? "text-primary" : "text-gray-900")}>
-                      {option.value}
-                    </span>
-                    <span
-                      className={cn(
-                        "mt-0.5 h-4 w-4 shrink-0 rounded border",
-                        active ? "bg-primary border-primary" : "border-gray-300"
-                      )}
-                      aria-hidden
-                    />
+                  <span
+                    className={cn(
+                      "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-colors",
+                      active ? "border-primary bg-primary text-white" : "border-gray-300 bg-white"
+                    )}
+                    aria-hidden
+                  >
+                    {active && <Check className="h-3.5 w-3.5" strokeWidth={3} />}
                   </span>
-                  <span className="block text-sm text-gray-600 mt-1">{option.description}</span>
-                  {option.price && <span className="block text-xs text-gray-500 mt-1">{option.price}</span>}
+                  <span className="min-w-0 flex-1">
+                    <span className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+                      <span className="text-[15px] font-semibold text-gray-900">{option.value}</span>
+                      {option.price && (
+                        <span className="shrink-0 text-sm font-semibold text-primary sm:text-right">
+                          {option.price}
+                        </span>
+                      )}
+                    </span>
+                    <span className="mt-1 block text-sm leading-relaxed text-gray-600">{option.description}</span>
+                  </span>
                 </button>
               )
             })}
           </div>
-          <p className="mt-1.5 text-xs text-gray-400">{PRICE_NOTE}</p>
           <ErrorText message={errors.interests?.message} />
         </div>
 
