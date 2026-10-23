@@ -1,5 +1,5 @@
 // 도입 상담 폼(/inquiry)의 선택지. 폼 화면과 입력 검증이 같은 목록을 쓴다.
-// 상품 구성·가격은 2026-10-23 Slack 논의(심영훈 안) 기준. 가격은 모두 부가세 별도.
+// 상품 구성·가격은 2026-10-23 Slack 최종 피드백 기준. 가격은 모두 부가세 별도.
 
 export const COUNTRY_OPTIONS = ["일본", "영미/영어권", "대만", "동남아", "기타"] as const
 
@@ -22,12 +22,12 @@ export const INTEREST_OPTIONS: InterestOption[] = [
   {
     value: "국가별 전담 에이전시 (성과 연동)",
     description: "기본료 없이 같은 전담 운영을 받고, 해외 환자 매출에 연동한 수수료만 내요",
-    price: "해외 환자 매출의 20~30%",
+    price: "해외 환자 매출의 25%",
   },
   {
     value: "바이럴 확산 마케팅 패키지",
     description: "현지 인플루언서와 바이럴 콘텐츠로 단기간에 인지도를 높이는 패키지",
-    price: "350만~500만 원",
+    price: "500만~3,000만 원",
   },
   {
     value: "Worldwide GTM 파트너십",
@@ -43,4 +43,4 @@ export const INTEREST_OPTIONS: InterestOption[] = [
 /** 가격 표시에 붙는 공통 안내 */
 export const PRICE_NOTE = "가격은 부가세 별도"
 
-export const REVENUE_OPTIONS = ["월 3천만~5천만 원", "월 5천만~1억 원", "월 1억 원 이상"] as const
+export const REVENUE_OPTIONS = ["월 5천만 원 미만", "월 5천만~1억 원", "월 1억~5억 원", "월 5억 원 이상"] as const

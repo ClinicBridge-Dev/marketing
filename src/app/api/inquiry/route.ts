@@ -99,7 +99,7 @@ export async function POST(req: Request) {
 **🌍 마케팅 정보**
 • **희망 국가:** ${countriesLine}
 • **관심 서비스:** ${interestsLine}
-• **목표 해외 환자 월 매출:** ${expectedRevenue}
+• **타겟 국가 목표 월 매출:** ${expectedRevenue}
 • **월 예산:** ${budget}
 • **도입 희망 시기:** ${implementationTiming}
 • **유입 경로:** ${inflowLine}
@@ -152,7 +152,7 @@ ${challenges}
             fields: [
               { type: "mrkdwn", text: `*희망 국가*\n${countriesLine}` },
               { type: "mrkdwn", text: `*관심 서비스*\n${interestsLine}` },
-              { type: "mrkdwn", text: `*목표 해외 환자 월 매출*\n${expectedRevenue}` },
+              { type: "mrkdwn", text: `*타겟 국가 목표 월 매출*\n${expectedRevenue}` },
               { type: "mrkdwn", text: `*월 예산*\n${budget}` },
               { type: "mrkdwn", text: `*도입 희망 시기*\n${implementationTiming}` },
               { type: "mrkdwn", text: `*유입 경로*\n${inflowLine}` },
@@ -189,7 +189,7 @@ ${challenges}
           이메일: email,
           "희망 국가": countriesLine,
           "관심 서비스": interestsLine,
-          // 폼 문구는 '목표 해외 환자 월 매출'로 바뀌었지만, 시트 열은 기존 데이터와 이어지도록 이름을 유지한다
+          // 폼 문구는 '타겟 국가 목표 월 매출'로 바뀌었지만, 시트 열은 기존 데이터와 이어지도록 이름을 유지한다
           "기대 해외 환자 월 매출": expectedRevenue,
           "월 예산": budget,
           "도입 희망 시기": implementationTiming,
@@ -227,7 +227,7 @@ ${challenges}
               <p><strong>이메일:</strong> ${email}</p>
               <p><strong>희망 국가:</strong> ${countriesLine}</p>
               <p><strong>관심 서비스:</strong> ${interestsLine}</p>
-              <p><strong>목표 해외 환자 월 매출:</strong> ${expectedRevenue}</p>
+              <p><strong>타겟 국가 목표 월 매출:</strong> ${expectedRevenue}</p>
               <p><strong>월 예산:</strong> ${budget}</p>
               <p><strong>도입 희망 시기:</strong> ${implementationTiming}</p>
               <p><strong>유입 경로:</strong> ${inflowLine}</p>

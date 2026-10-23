@@ -144,9 +144,6 @@ interface InquiryFormProps {
 
 export function InquiryForm({ onSuccess }: InquiryFormProps) {
   const [step, setStep] = useState(0)
-  // 팀 검토용 비교 버전: 주소에 ?layout=single 이 있으면 모든 항목을 한 페이지에 보여준다.
-  // 두 버전 중 하나로 정해지면 이 분기를 지운다.
-  const [singlePage, setSinglePage] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   // 버튼 비활성화(state)는 다음 렌더 후에 반영되므로, 빠른 연타로 같은 신청이 두 번 전송되지 않게 ref로 막는다.
   const submitLockRef = useRef(false)
@@ -162,7 +159,7 @@ export function InquiryForm({ onSuccess }: InquiryFormProps) {
     formState: { errors },
   } = useForm<InquiryPageFormData>({
     resolver: zodResolver(inquiryPageFormSchema),
-    defaultValues: { targetCountries: [], interests: [] },
+    defaultValues: { targetCountries: [], interests: [], expectedRevenue: "" },
   })
 
   const businessIntro = watch("businessIntro") ?? ""
@@ -173,7 +170,6 @@ export function InquiryForm({ onSuccess }: InquiryFormProps) {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
-    setSinglePage(params.get("layout") === "single")
     const inflow = INFLOW_PARAMS.map((k) => params.get(k)).filter(Boolean).join(" / ")
     if (inflow) setValue("inflow", inflow.slice(0, 200))
   }, [setValue])
@@ -211,7 +207,7 @@ export function InquiryForm({ onSuccess }: InquiryFormProps) {
       // 서버가 신청을 실제로 접수한 경우(ok + inquiryId)에만 성공 처리와 광고 전환을 보낸다.
       // 전환은 이 제출 핸들러에서만 보내므로 완료 페이지 새로고침·재렌더링으로 다시 집계되지 않는다.
       if (response.ok && result?.ok === true && typeof result.inquiryId === "string") {
-        reset({ targetCountries: [], interests: [] })
+        reset({ targetCountries: [], interests: [], expectedRevenue: "" })
         trackConversion()
         trackLead("inquiry")
         trackLeadCreated(result.inquiryId)
@@ -228,7 +224,7 @@ export function InquiryForm({ onSuccess }: InquiryFormProps) {
     }
   }
 
-  // 단계별 입력 항목. 3단계 폼은 한 단계씩, 한 페이지 폼은 모두 이어서 보여준다.
+  // 단계별 입력 항목. 한 단계씩 보여준다.
   const stepBodies = [
     (          <>
               <div>
@@ -269,8 +265,8 @@ export function InquiryForm({ onSuccess }: InquiryFormProps) {
     ),
     (          <>
               <div>
-                <FieldLabel htmlFor="expectedRevenue">목표 해외 환자 월 매출 *</FieldLabel>
-                <div className="grid gap-2 sm:grid-cols-3">
+                <FieldLabel htmlFor="expectedRevenue">타겟 국가 목표 월 매출 *</FieldLabel>
+                <div className="grid gap-2 sm:grid-cols-2">
                   {REVENUE_OPTIONS.map((option) => (
                     <ChoiceChip
                       key={option}
@@ -414,32 +410,6 @@ export function InquiryForm({ onSuccess }: InquiryFormProps) {
       )}
     </Button>
   )
-
-  if (singlePage) {
-    return (
-      <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        <input type="text" {...register("hp")} className="hidden" tabIndex={-1} autoComplete="off" />
-        <input type="hidden" {...register("inflow")} />
-        <div className="space-y-12">
-          {STEPS.map((s, i) => (
-            <section key={s.title}>
-              <div className="flex items-start gap-3 border-b border-gray-200 pb-4">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
-                  {i + 1}
-                </span>
-                <div>
-                  <h2 className="text-lg font-bold text-gray-900 sm:text-xl">{s.title}</h2>
-                  <p className="mt-1 text-sm text-gray-600">{s.description}</p>
-                </div>
-              </div>
-              <div className="mt-6 space-y-8">{stepBodies[i]}</div>
-            </section>
-          ))}
-        </div>
-        <div className="mt-10 flex">{submitButton}</div>
-      </form>
-    )
-  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
