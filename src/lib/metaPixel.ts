@@ -63,6 +63,9 @@ function getPixel() {
   if (!state.initialized) {
     // Manual events only; do not scrape form values or enable advanced matching.
     window.fbq("set", "autoConfig", false, META_PIXEL_ID)
+    // The shared dataset has automatic matching enabled. Opt out on this site
+    // explicitly: autoConfig alone does not disable the legacy matching plugin.
+    window.fbq("optOut", META_PIXEL_ID, "AutomaticMatching")
     window.fbq("init", META_PIXEL_ID)
     state.initialized = true
   }

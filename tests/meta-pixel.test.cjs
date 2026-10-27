@@ -36,6 +36,7 @@ test('initializes once, queues before SDK load, deduplicates same route but trac
   assert.equal(f.scripts[0].async, true)
   assert.equal(f.window.fbq.queue.filter(([cmd]) => cmd === 'init').length, 1)
   assert.deepEqual(Array.from(f.window.fbq.queue[0]), ['set', 'autoConfig', false, '1979462026345832'])
+  assert.deepEqual(Array.from(f.window.fbq.queue[1]), ['optOut', '1979462026345832', 'AutomaticMatching'])
   assert.equal(f.events().length, 3)
   assert.ok(f.events().every((event) => event[2] === 'PageView'))
 })
