@@ -9,7 +9,7 @@ export function ArticleCta() {
         도입 상담을 통해 대표 진료·디지털 자산·목표 예산을 함께 진단해드립니다.
       </p>
       <Button asChild variant="default" size="lg" className="rounded-none bg-white text-[#C1452D] hover:bg-gray-100">
-        <Link href="/inquiry">문의하기</Link>
+        <Link href="/inquiry" data-meta-placement="article_cta">문의하기</Link>
       </Button>
     </div>
   )

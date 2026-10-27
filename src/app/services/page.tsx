@@ -187,7 +187,7 @@ export default function ServicesPage() {
               size="lg"
               className="bg-white text-[#C1452D] hover:bg-gray-100 shadow-lg font-semibold"
             >
-              <Link href="/inquiry">문의하기</Link>
+              <Link href="/inquiry" data-meta-placement="services">문의하기</Link>
             </Button>
           </motion.div>
         </Container>

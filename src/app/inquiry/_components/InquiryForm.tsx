@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils"
 import { inquiryPageFormSchema, type InquiryPageFormData } from "@/lib/validators"
 import { trackConversion, trackLead } from "@/lib/gtag"
 import { trackLeadCreated } from "@/lib/openaiPixel"
+import { trackMetaConsultationSubmit, trackMetaInquiryStart } from "@/lib/metaPixel"
 import {
   COUNTRY_OPTIONS,
   INTEREST_OPTIONS,
@@ -207,6 +208,7 @@ export function InquiryForm({ onSuccess }: InquiryFormProps) {
       // 서버가 신청을 실제로 접수한 경우(ok + inquiryId)에만 성공 처리와 광고 전환을 보낸다.
       // 전환은 이 제출 핸들러에서만 보내므로 완료 페이지 새로고침·재렌더링으로 다시 집계되지 않는다.
       if (response.ok && result?.ok === true && typeof result.inquiryId === "string") {
+        trackMetaConsultationSubmit()
         reset({ targetCountries: [], interests: [], expectedRevenue: "" })
         trackConversion()
         trackLead("inquiry")
@@ -412,7 +414,21 @@ export function InquiryForm({ onSuccess }: InquiryFormProps) {
   )
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate>
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      onChangeCapture={(event) => {
+        const target = event.target
+        if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement) {
+          if (target.name && target.name !== "hp" && target.name !== "inflow") trackMetaInquiryStart()
+        }
+      }}
+      onClickCapture={(event) => {
+        if (event.target instanceof Element && event.target.closest('button[role="radio"], button[aria-pressed]')) {
+          trackMetaInquiryStart()
+        }
+      }}
+      noValidate
+    >
       <input type="text" {...register("hp")} className="hidden" tabIndex={-1} autoComplete="off" />
       <input type="hidden" {...register("inflow")} />
 

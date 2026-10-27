@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { Toaster } from "react-hot-toast"
 import { ContactProvider } from "./ContactProvider"
+import { MetaTracking } from "./MetaTracking"
 import { Header } from "@/components/layout/Header"
 import { Footer } from "@/components/layout/Footer"
 import { InquiryDialog } from "@/components/forms/InquiryDialog"
@@ -30,6 +31,7 @@ export function ClientProviders({ children }: ClientProvidersProps) {
 
   return (
     <ContactProvider>
+      <MetaTracking />
       {isBannerVisible && <TopBanner onDismiss={() => setIsBannerVisible(false)} />}
       <Header onMobileNavStateChange={handleMobileNavStateChange} topOffset={headerOffset} />
       <main className={`transition-all duration-300 ${

@@ -55,7 +55,7 @@ export function Hero() {
                 size="lg"
                 className="h-16 px-12 sm:px-14 text-lg bg-[#D65A3B] hover:bg-[#B84A2E]"
               >
-                <Link href="/inquiry" className="flex items-center gap-2">
+                <Link href="/inquiry" data-meta-placement="hero" className="flex items-center gap-2">
                   문의하기
                   <ChevronRight className="h-5 w-5" />
                 </Link>

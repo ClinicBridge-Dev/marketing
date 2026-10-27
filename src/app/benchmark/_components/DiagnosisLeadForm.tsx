@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2 } from "lucide-react"
@@ -8,6 +8,7 @@ import toast from "react-hot-toast"
 import { Button } from "@/components/common/Button"
 import { diagnosisFormSchema, type DiagnosisFormData } from "@/lib/validators"
 import { trackConversion } from "@/lib/gtag"
+import { trackMetaDiagnosisSubmit } from "@/lib/metaPixel"
 
 const DEPARTMENTS = ["피부과", "성형외과", "치과", "한의원", "기타"]
 const JAPAN_EXPERIENCE_OPTIONS = ["처음 진출", "검토 중", "이미 진출해 있음"]
@@ -20,6 +21,7 @@ interface DiagnosisLeadFormProps {
 export function DiagnosisLeadForm({ score, tier }: DiagnosisLeadFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const submitLockRef = useRef(false)
 
   const {
     register,
@@ -32,7 +34,9 @@ export function DiagnosisLeadForm({ score, tier }: DiagnosisLeadFormProps) {
 
   const onSubmit = async (data: DiagnosisFormData) => {
     if (data.hp) return // honeypot
+    if (submitLockRef.current) return
 
+    submitLockRef.current = true
     setIsSubmitting(true)
     try {
       const response = await fetch("/api/diagnosis", {
@@ -41,7 +45,9 @@ export function DiagnosisLeadForm({ score, tier }: DiagnosisLeadFormProps) {
         body: JSON.stringify({ ...data, score, tier }),
       })
 
-      if (response.ok) {
+      const result: { ok?: boolean } | null = await response.json().catch(() => null)
+      if (response.ok && result?.ok === true) {
+        trackMetaDiagnosisSubmit()
         reset()
         trackConversion()
         setIsSubmitted(true)
@@ -53,6 +59,7 @@ export function DiagnosisLeadForm({ score, tier }: DiagnosisLeadFormProps) {
       console.error("Diagnosis form submission error:", error)
       toast.error("전송 중 오류가 발생했습니다. 다시 시도해주세요.")
     } finally {
+      submitLockRef.current = false
       setIsSubmitting(false)
     }
   }
