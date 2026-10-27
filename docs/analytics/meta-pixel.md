@@ -23,7 +23,7 @@ GA4, Google Ads, OpenAI tracking, campaign code, attribution settings, and ad op
 - The SDK loads asynchronously after hydration. Events queue before it loads; SDK errors do not block forms/navigation.
 - Only `clinicbridge.co.kr` and `www.clinicbridge.co.kr` enable tracking. Localhost and Vercel preview hostnames never load the SDK or queue events.
 - Set `NEXT_PUBLIC_META_PIXEL_ENABLED=false` and rebuild/redeploy to disable. `NEXT_PUBLIC_META_PIXEL_ID` overrides the public default ID if needed.
-- Same-path rerenders, query/hash changes, and StrictMode effect replays do not repeat PageView. Navigating away and back does.
+- Same-path rerenders, query/hash changes, and StrictMode effect replays do not repeat PageView. Navigating away and back does. The SDK's own history observer is disabled with `fbq.disablePushState=true` before SDK load, and the pixel is set to `trackSingleOnly` after init; otherwise the current SDK emits an extra automatic PageView on SPA navigation even with autoConfig disabled. Our pathname observer is the single owner.
 - InquiryStart uses versioned sessionStorage with an in-memory fallback when storage is unavailable. Focus, next/previous buttons, hidden fields, honeypot, page load, and validation errors alone do not count as starting.
 - Submissions are counted in API success handlers, not on `/inquiry/complete`. Both forms lock concurrent submissions. Real later submissions remain eligible; the main API's same-person/same-day inquiryId is deliberately not used for Meta deduplication.
 - This release preserves the main API's existing success policy. It does not count server-rejected requests as successful submissions or introduce CAPI.

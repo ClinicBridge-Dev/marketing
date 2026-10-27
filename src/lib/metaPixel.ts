@@ -8,6 +8,7 @@ type MetaQueue = {
   push: MetaQueue
   loaded: boolean
   version: string
+  disablePushState?: boolean
 }
 
 declare global {
@@ -50,7 +51,7 @@ function getPixel() {
     const fbq: MetaQueue = Object.assign(function (...args: unknown[]) {
       if (fbq.callMethod) fbq.callMethod(...args)
       else fbq.queue.push(args)
-    }, { queue: [] as unknown[][], loaded: true, version: "2.0" }) as MetaQueue
+    }, { queue: [] as unknown[][], loaded: true, version: "2.0", disablePushState: true }) as MetaQueue
     fbq.push = fbq
     window.fbq = fbq
     window._fbq ??= fbq
@@ -67,6 +68,9 @@ function getPixel() {
     // explicitly: autoConfig alone does not disable the legacy matching plugin.
     window.fbq("optOut", META_PIXEL_ID, "AutomaticMatching")
     window.fbq("init", META_PIXEL_ID)
+    // Our pathname observer owns PageView. The SDK otherwise also emits one on
+    // history changes. Only explicit trackSingle/trackSingleCustom calls may fire.
+    window.fbq("set", "trackSingleOnly", true, META_PIXEL_ID)
     state.initialized = true
   }
   return window.fbq
