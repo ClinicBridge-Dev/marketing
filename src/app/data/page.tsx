@@ -416,7 +416,7 @@ export default function DataPage() {
                 size="lg"
                 className="rounded-none bg-white text-[#C1452D] hover:bg-gray-100"
               >
-                <Link href="/inquiry">문의하기</Link>
+                <Link href="/inquiry" data-meta-placement="data">문의하기</Link>
               </Button>
             </div>
           </div>

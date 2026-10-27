@@ -29,7 +29,7 @@ export function QuoteCta({ title = "정확한 견적이 필요하신가요?" }: 
             size="lg"
             className="bg-[#C1452D] text-white hover:bg-[#A23A24] shadow-lg font-semibold"
           >
-            <Link href="/inquiry">문의하기</Link>
+            <Link href="/inquiry" data-meta-placement="quote_cta">문의하기</Link>
           </Button>
         </motion.div>
       </Container>

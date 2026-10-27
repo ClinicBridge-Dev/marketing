@@ -108,7 +108,7 @@ export function ServiceHighlights() {
 
               {service.bottomPrice ? (
                 <Link
-                  href="/inquiry"
+                  href="/inquiry" data-meta-placement="service_highlights"
                   className="mt-auto w-full inline-flex items-center justify-center gap-1 py-3 rounded-lg bg-gray-900 text-white text-sm font-semibold hover:bg-gray-800 transition-colors"
                 >
                   문의하기

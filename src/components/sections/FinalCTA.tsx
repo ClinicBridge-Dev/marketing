@@ -39,7 +39,7 @@ export function FinalCTA() {
             size="lg"
             className="w-full lg:w-96 lg:px-8 bg-white text-[#C1452D] hover:bg-gray-100 text-lg py-4 font-semibold shadow-lg"
           >
-            <Link href="/inquiry">문의하기</Link>
+            <Link href="/inquiry" data-meta-placement="final_cta">문의하기</Link>
           </Button>
         </motion.div>
       </Container>

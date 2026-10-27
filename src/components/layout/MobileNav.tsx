@@ -79,7 +79,7 @@ export function MobileNav({ open, onClose, navigation }: MobileNavProps) {
         {/* CTA */}
         <div className="p-6 pb-8 border-t">
           <Button asChild variant="gradient" className="w-full">
-            <Link href="/inquiry" onClick={onClose}>
+            <Link href="/inquiry" data-meta-placement="mobile_nav" onClick={onClose}>
               문의하기
             </Link>
           </Button>

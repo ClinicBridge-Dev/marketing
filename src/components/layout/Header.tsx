@@ -67,13 +67,13 @@ export function Header({ onMobileNavStateChange, topOffset = 0 }: HeaderProps) {
 
           <div className="hidden md:flex items-center">
             <Button asChild onClick={handleContactClick} variant="default" size="sm">
-              <Link href="/inquiry">문의하기</Link>
+              <Link href="/inquiry" data-meta-placement="header">문의하기</Link>
             </Button>
           </div>
 
           <div className="md:hidden flex items-center space-x-2">
             <Button asChild onClick={handleContactClick} variant="default" size="sm">
-              <Link href="/inquiry">문의하기</Link>
+              <Link href="/inquiry" data-meta-placement="header">문의하기</Link>
             </Button>
             <button
               type="button"
