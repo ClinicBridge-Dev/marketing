@@ -4,6 +4,7 @@ import { formatKoreanDateTime, formatKoreanTimestamp } from "@/lib/datetime"
 import { appendSheetRow } from "@/lib/googleSheets"
 import { sendSlackNotification } from "@/lib/slack"
 import { createInquiryEventId } from "@/lib/inquiryEventId"
+import { parseReportRef } from "@/lib/reportRef"
 import { createTrelloCard, testTrelloAuth, type TrelloCardResponse } from "@/lib/trello"
 
 // 구글 시트에서 도입 상담 접수 내역을 쌓는 탭 이름.
@@ -31,6 +32,7 @@ export async function POST(req: Request) {
       privacyConsent,
       hp,
       inflow,
+      ref,
     } = await req.json()
 
     if (hp) {
@@ -72,6 +74,8 @@ export async function POST(req: Request) {
     const interestsLine = interests.join(", ")
     // 유입 경로(utm). 폼이 주소에서 자동으로 채운다. 없으면 직접 방문.
     const inflowLine = typeof inflow === "string" && inflow.trim() ? inflow.trim().slice(0, 200) : "직접 방문"
+    // 캠페인 리포트에서 왔으면 그 신청자의 리드 ID(미검증, lib/reportRef). 없거나 형식이 틀리면 빈 값.
+    const reportRef = parseReportRef(ref)
 
     let trelloCard: TrelloCardResponse | null = null
     const trelloApiKey = process.env.TRELLO_API_KEY
@@ -102,7 +106,7 @@ export async function POST(req: Request) {
 • **타겟 국가 목표 월 매출:** ${expectedRevenue}
 • **월 예산:** ${budget}
 • **도입 희망 시기:** ${implementationTiming}
-• **유입 경로:** ${inflowLine}
+• **유입 경로:** ${inflowLine}${reportRef ? `\n• **리포트 신청 리드:** ${reportRef.leadId}` : ""}
 
 **💬 병원/사업 소개**
 ${businessIntro}
@@ -156,6 +160,7 @@ ${challenges}
               { type: "mrkdwn", text: `*월 예산*\n${budget}` },
               { type: "mrkdwn", text: `*도입 희망 시기*\n${implementationTiming}` },
               { type: "mrkdwn", text: `*유입 경로*\n${inflowLine}` },
+              ...(reportRef ? [{ type: "mrkdwn" as const, text: `*리포트 신청 리드*\n${reportRef.leadId}` }] : []),
             ],
           },
           {
@@ -194,6 +199,9 @@ ${challenges}
           "월 예산": budget,
           "도입 희망 시기": implementationTiming,
           "유입 경로": inflowLine,
+          // 리포트 신청 시트(B2B Marketing - Campaign Leads)의 리드 ID와 같은 값. 원본 토큰은 CRM 검증용.
+          "리포트 리드 ID": reportRef?.leadId ?? "",
+          "리포트 참조": reportRef?.token ?? "",
           "병원/사업 소개": businessIntro,
           "현재 겪고 있는 어려움": challenges,
           "개인정보 수집 동의": "동의",
@@ -230,7 +238,8 @@ ${challenges}
               <p><strong>타겟 국가 목표 월 매출:</strong> ${expectedRevenue}</p>
               <p><strong>월 예산:</strong> ${budget}</p>
               <p><strong>도입 희망 시기:</strong> ${implementationTiming}</p>
-              <p><strong>유입 경로:</strong> ${inflowLine}</p>
+              <p><strong>유입 경로:</strong> ${inflowLine}</p>${reportRef ? `
+              <p><strong>리포트 신청 리드:</strong> ${reportRef.leadId}</p>` : ""}
             </div>
             <div style="background: #fff; border: 1px solid #e9ecef; padding: 20px; border-radius: 8px; margin-bottom: 12px;">
               <h3 style="color: #C1452D; margin-top: 0;">병원/사업 소개</h3>

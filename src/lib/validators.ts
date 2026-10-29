@@ -47,6 +47,7 @@ export const inquiryPageFormSchema = z.object({
   privacyConsent: z.literal(true, "개인정보 수집·이용에 동의해주세요"),
   hp: z.string().optional(), // honeypot field
   inflow: z.string().max(200).optional(), // 유입 경로(utm), 주소에서 자동으로 채움
+  ref: z.string().max(600).optional(), // 리포트 리드 참조, 주소에서 자동으로 채움 (lib/reportRef)
 })
 
 export type InquiryPageFormData = z.infer<typeof inquiryPageFormSchema>

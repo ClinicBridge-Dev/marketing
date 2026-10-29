@@ -12,6 +12,7 @@ import { inquiryPageFormSchema, type InquiryPageFormData } from "@/lib/validator
 import { trackConversion, trackLead } from "@/lib/gtag"
 import { trackLeadCreated } from "@/lib/openaiPixel"
 import { trackMetaConsultationSubmit, trackMetaInquiryStart } from "@/lib/metaPixel"
+import { isReportRefToken } from "@/lib/reportRef"
 import {
   COUNTRY_OPTIONS,
   INTEREST_OPTIONS,
@@ -22,6 +23,7 @@ import {
 
 // 유입 경로로 남길 주소 파라미터 (예: 웹 리포트의 무료 진단 버튼은 utm_medium=report)
 const INFLOW_PARAMS = ["utm_source", "utm_medium", "utm_campaign", "utm_content"] as const
+const REPORT_REF_KEY = "cb_inquiry_report_ref"
 
 // 3단계 폼. 부담이 적은 질문(관심 서비스)부터 묻고, 매출·예산과 연락처는 뒤로 둔다.
 // 각 단계의 '다음'은 그 단계 항목만 검증한다.
@@ -173,6 +175,22 @@ export function InquiryForm({ onSuccess }: InquiryFormProps) {
     const params = new URLSearchParams(window.location.search)
     const inflow = INFLOW_PARAMS.map((k) => params.get(k)).filter(Boolean).join(" / ")
     if (inflow) setValue("inflow", inflow.slice(0, 200))
+
+    // 리포트 리드 참조. 새로고침해도 남도록 세션에 두고, 주소에서는 지운다(링크를 남에게 넘겨도 따라가지 않게).
+    const ref = params.get("ref")
+    if (ref !== null) {
+      params.delete("ref")
+      const query = params.toString()
+      window.history.replaceState(window.history.state, "", `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`)
+    }
+    let saved: string | null = null
+    try {
+      if (isReportRefToken(ref)) sessionStorage.setItem(REPORT_REF_KEY, ref)
+      saved = sessionStorage.getItem(REPORT_REF_KEY)
+    } catch {
+      saved = isReportRefToken(ref) ? ref : null
+    }
+    if (isReportRefToken(saved)) setValue("ref", saved)
   }, [setValue])
 
   const toggleCountry = (option: string) => {
@@ -419,7 +437,7 @@ export function InquiryForm({ onSuccess }: InquiryFormProps) {
       onChangeCapture={(event) => {
         const target = event.target
         if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement) {
-          if (target.name && target.name !== "hp" && target.name !== "inflow") trackMetaInquiryStart()
+          if (target.name && target.name !== "hp" && target.name !== "inflow" && target.name !== "ref") trackMetaInquiryStart()
         }
       }}
       onClickCapture={(event) => {
@@ -431,6 +449,7 @@ export function InquiryForm({ onSuccess }: InquiryFormProps) {
     >
       <input type="text" {...register("hp")} className="hidden" tabIndex={-1} autoComplete="off" />
       <input type="hidden" {...register("inflow")} />
+      <input type="hidden" {...register("ref")} />
 
       {/* 진행 표시 */}
       <div ref={topRef} className="scroll-mt-24">
