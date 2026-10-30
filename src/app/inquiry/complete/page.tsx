@@ -51,7 +51,7 @@ export default function InquiryCompletePage() {
               <Link href="/">홈으로 돌아가기</Link>
             </Button>
             <Button asChild variant="outline" size="lg">
-              <Link href="/blog">인사이트 둘러보기</Link>
+              <Link href="/blog">그로스LAB 둘러보기</Link>
             </Button>
           </div>
         </div>

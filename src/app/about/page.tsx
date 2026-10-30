@@ -11,7 +11,7 @@ export default function AboutPage() {
       <PageHero
         category="회사 소개"
         title="클리닉브릿지 소개"
-        subtitle="글로벌 의료 마케팅 에이전시"
+        subtitle="클리닉 그로스 컴퍼니"
         image="/images/hero-about.png"
       />
 

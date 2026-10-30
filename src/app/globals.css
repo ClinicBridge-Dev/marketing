@@ -1,4 +1,4 @@
-@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+/* Pretendard 는 next/font/local 로 자체 호스팅 (src/app/layout.tsx) */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -57,10 +57,13 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    /* clip: 가로 넘침은 숨기되 스크롤 컨테이너를 만들지 않아 position: sticky 가 동작한다 (미지원 브라우저는 hidden) */
     overflow-x: hidden;
+    overflow-x: clip;
   }
   html {
     overflow-x: hidden;
+    overflow-x: clip;
   }
 }
 
@@ -118,8 +121,21 @@
 
 .marquee-row:hover .animate-marquee-left,
 .marquee-row:hover .animate-marquee-right,
-.marquee-row:hover .animate-marquee-slow {
+.marquee-row:hover .animate-marquee-slow,
+.marquee-row[data-offscreen] .animate-marquee-left,
+.marquee-row[data-offscreen] .animate-marquee-right,
+.marquee-row[data-offscreen] .animate-marquee-slow {
   animation-play-state: paused;
+}
+
+/* 역량 03 대시보드의 세로 무한 스크롤. 한 바퀴 높이는 --loop-h 로 받는다. */
+@keyframes cb-dashboard-scroll {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(calc(-1 * var(--loop-h)));
+  }
 }
 
 .scrollbar-hide {

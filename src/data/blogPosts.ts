@@ -302,10 +302,35 @@ export function getAllBlogPosts(): BlogPost[] {
   return blogPosts
 }
 
-const CATEGORY_PRIORITY = ["마케팅 인사이트", "마케팅 리포트"]
+// 그로스LAB 에 "공개 예정"으로 미리 노출하는 칼럼. 아직 본문 페이지가 없으므로 목록에서 링크하지 않고,
+// 관련 콘텐츠(getAllContent)에도 넣지 않는다. 발행하면 blogPosts 로 옮기고 여기서 삭제한다.
+export interface UpcomingColumn {
+  id: string
+  title: string
+  /** 시리즈 회차 (카드 표지에 크게 표시) */
+  part: number
+  category: string
+}
+
+const ZERO_TO_ONE_SERIES = "영미권 환자 마케팅 제로 투 월 매출 5억 원, 첫 7개월의 실행 기록"
+
+export const UPCOMING_COLUMNS: UpcomingColumn[] = [1, 2, 3].map((part) => ({
+  id: `en-zero-to-one-${part}`,
+  title: `${ZERO_TO_ONE_SERIES} (${part})`,
+  part,
+  category: "영미권 인사이트",
+}))
+
+export function getUpcomingColumns(): UpcomingColumn[] {
+  return UPCOMING_COLUMNS
+}
+
+const CATEGORY_PRIORITY = ["마케팅 인사이트", "영미권 인사이트", "마케팅 리포트"]
 
 export function getBlogCategories(): string[] {
-  const unique = Array.from(new Set([...blogPosts.map((post) => post.category), "마케팅 리포트"]))
+  const unique = Array.from(
+    new Set([...blogPosts.map((post) => post.category), ...UPCOMING_COLUMNS.map((c) => c.category), "마케팅 리포트"])
+  )
   unique.sort((a, b) => CATEGORY_PRIORITY.indexOf(a) - CATEGORY_PRIORITY.indexOf(b))
   return ["전체", ...unique]
 }
