@@ -6,6 +6,7 @@ import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 import { Container } from "@/components/common/Container"
 import { MARKET_ROTATE_MS, TARGET_MARKETS } from "@/data/markets"
+import { GlobeCanvas } from "./GlobeCanvas"
 import { ShaderBackground } from "./ShaderBackground"
 
 const EASE = [0.22, 1, 0.36, 1] as const
@@ -31,7 +32,7 @@ function RollingMarket({ index }: { index: number }) {
         animate={widths[index] ? { width: widths[index] } : undefined}
         transition={{ duration: 0.6, ease: EASE }}
       >
-        <span className="invisible whitespace-nowrap">{label}</span>
+        <span aria-hidden className="invisible whitespace-nowrap">{label}</span>
         <AnimatePresence initial={false}>
           <motion.span key={label} className="absolute left-0 top-0 flex whitespace-nowrap" aria-label={label}>
             {Array.from(label).map((ch, i) => (
@@ -77,7 +78,13 @@ export function GrowthHero() {
 
   return (
     <section id="hero" className="relative isolate overflow-hidden bg-[#0A0A0A] text-white">
-      <ShaderBackground className="absolute inset-0 -z-10 h-full w-full" />
+      {/* 배경 레이어: 셰이더 → 인바운드 지구본 → 좌측 스크림 (텍스트 가독성) */}
+      <div aria-hidden className="absolute inset-0 -z-10">
+        <ShaderBackground className="absolute inset-0 h-full w-full" />
+        <GlobeCanvas activeIndex={index} className="absolute inset-0 h-full w-full opacity-60 md:opacity-100" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A]/90 via-[#0A0A0A]/40 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#0A0A0A] to-transparent" />
+      </div>
 
       <Container>
         <div className="flex min-h-[calc(100svh-104px)] lg:min-h-[800px] flex-col justify-between pt-8 pb-8 lg:pt-10">
@@ -91,7 +98,7 @@ export function GrowthHero() {
           </motion.div>
 
           <h1
-            className="py-16 font-semibold text-[44px] leading-[1.08] sm:text-[72px] lg:text-[104px] tracking-[-0.045em]"
+            className="py-12 font-semibold text-[44px] leading-[1.08] sm:text-[72px] lg:text-[104px] tracking-[-0.045em]"
             style={{ wordBreak: "keep-all" }}
           >
             <motion.span {...enter(0.1)} className="block">
@@ -101,43 +108,61 @@ export function GrowthHero() {
             <motion.span {...enter(0.3)} className="block text-white/45">만듭니다.</motion.span>
           </h1>
 
+          {/* 하단 행: 좌측 소개 문장 + CTA, 우측 하단 시장 선택기 */}
           <motion.div
             {...enter(0.45)}
-            className="grid gap-8 border-t border-white/15 pt-6 lg:grid-cols-12 lg:gap-6"
+            className="grid gap-10 border-t border-white/15 pt-8 lg:grid-cols-12 lg:items-end lg:gap-6"
           >
-            <ol className="flex gap-6 lg:col-span-4" aria-label="타깃 시장">
-              {TARGET_MARKETS.map((m, i) => (
-                <li key={m.key}>
-                  <button
-                    type="button"
-                    onClick={() => setIndex(i)}
-                    aria-pressed={i === index}
-                    className={`text-left text-sm transition-colors ${i === index ? "text-white" : "text-white/35 hover:text-white/70"}`}
-                  >
-                    <span className="block text-[11px] tabular-nums">({String(i + 1).padStart(2, "0")})</span>
-                    <span className="mt-1 block font-medium">{m.label}</span>
-                  </button>
-                </li>
-              ))}
-            </ol>
-
-            <p className="text-sm sm:text-base leading-relaxed text-white/65 lg:col-span-5" style={{ wordBreak: "keep-all" }}>
-              24/7, 우리 병원의 전략 수립부터 마케팅, 상담, 예약 전환까지.
-              해외환자 매출을 책임지는 전담 인하우스 그로스 팀이 됩니다.
-            </p>
-
-            <div className="lg:col-span-3 lg:justify-self-end">
+            <div className="lg:col-span-8">
+              <p
+                className="text-lg sm:text-xl lg:text-2xl font-medium leading-relaxed text-white/80"
+                style={{ wordBreak: "keep-all" }}
+              >
+                24/7, 우리 병원의 전략 수립부터 마케팅, 상담, 예약 전환까지.
+                <br className="hidden sm:block" />{" "}
+                <strong className="font-semibold text-[#D65A3B]">클리닉브릿지</strong>가 해외환자 매출을 책임지는 인하우스{" "}
+                <strong className="font-semibold text-[#D65A3B]">전담 그로스 팀</strong>이 됩니다.
+              </p>
               <Link
                 href="/inquiry"
                 data-meta-placement="hero"
-                className="group inline-flex h-12 items-center gap-3 rounded-full bg-[#D65A3B] pl-6 pr-2 text-sm font-semibold text-white transition-colors hover:bg-[#B84A2E]"
+                className="group mt-8 inline-flex h-14 items-center gap-3 rounded-full bg-[#D65A3B] pl-7 pr-2 text-base font-semibold text-white transition-colors hover:bg-[#B84A2E]"
               >
                 파트너십 문의하기
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 transition-transform duration-300 group-hover:translate-x-0.5">
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 transition-transform duration-300 group-hover:translate-x-0.5">
                   <ArrowRight className="h-4 w-4" />
                 </span>
               </Link>
             </div>
+
+            <ol className="flex gap-6 sm:gap-8 lg:col-span-4 lg:justify-self-end" aria-label="타깃 시장">
+              {TARGET_MARKETS.map((m, i) => {
+                const active = i === index
+                return (
+                  <li key={m.key} className="w-20 sm:w-24">
+                    <button
+                      type="button"
+                      onClick={() => setIndex(i)}
+                      aria-pressed={active}
+                      className={`w-full text-left text-sm transition-colors ${active ? "text-white" : "text-white/35 hover:text-white/70"}`}
+                    >
+                      <span className="block font-medium">{m.label}</span>
+                      <span className="mt-3 block h-px w-full overflow-hidden bg-white/15">
+                        {active && (
+                          <motion.span
+                            key={`bar-${index}`}
+                            className="block h-full bg-[#D65A3B]"
+                            initial={{ width: "0%" }}
+                            animate={{ width: "100%" }}
+                            transition={{ duration: MARKET_ROTATE_MS / 1000, ease: "linear" }}
+                          />
+                        )}
+                      </span>
+                    </button>
+                  </li>
+                )
+              })}
+            </ol>
           </motion.div>
         </div>
       </Container>

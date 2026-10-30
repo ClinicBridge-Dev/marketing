@@ -25,7 +25,6 @@ const PAGE_TYPES: Record<string, string> = {
   "/": "home",
   "/about": "about",
   "/services": "service",
-  "/pricing": "pricing",
   "/autopilot": "product",
   "/blog": "content_list",
   "/data": "report_article",

@@ -1,4 +1,4 @@
-@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+/* Pretendard 는 next/font/local 로 자체 호스팅 (src/app/layout.tsx) */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -57,10 +57,13 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    /* clip: 가로 넘침은 숨기되 스크롤 컨테이너를 만들지 않아 position: sticky 가 동작한다 (미지원 브라우저는 hidden) */
     overflow-x: hidden;
+    overflow-x: clip;
   }
   html {
     overflow-x: hidden;
+    overflow-x: clip;
   }
 }
 

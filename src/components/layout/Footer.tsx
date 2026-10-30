@@ -57,7 +57,7 @@ export function Footer() {
                 </li>
                 <li>
                   <Link href="/blog" className="text-gray-300 hover:text-white transition-colors">
-                    인사이트
+                    그로스LAB
                   </Link>
                 </li>
               </ul>

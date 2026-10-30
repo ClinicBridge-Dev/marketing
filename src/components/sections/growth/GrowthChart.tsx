@@ -1,10 +1,11 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import { motion, useInView } from "framer-motion"
 import { GROWTH_YEAR, MonthlyPatientCount, monthOverMonth } from "@/data/growthMetrics"
 
-// 월별 해외환자 유치 라인 차트 (라이트 테마, 정적 렌더 + 호버 툴팁).
-// 실적은 실선, 예상은 점선과 음영 구간으로 구분하고, 최신 실적 포인트만 브랜드 컬러로 강조한다.
+// 월별 해외환자 유치 라인 차트 (라이트 테마). 화면에 들어오면 실적 라인이 그려지고, 호버 시 툴팁을 띄운다.
+// 실적은 브랜드 컬러 실선과 옅은 영역, 예상은 점선과 음영 구간으로 구분한다.
 // 컨테이너 폭을 측정해 px 단위로 그려서 모바일에서도 글자 크기가 유지된다.
 
 const Y_MIN = 1000
@@ -12,6 +13,7 @@ const Y_MAX = 5000
 const Y_TICKS = [1000, 2000, 3000, 4000, 5000]
 const INK = "#0A0A0A"
 const ACCENT = "#C1452D"
+const EASE = [0.22, 1, 0.36, 1] as const
 
 const nf = new Intl.NumberFormat("ko-KR")
 const pct = (v: number) => `${v >= 0 ? "+" : ""}${(v * 100).toFixed(1)}%`
@@ -33,6 +35,7 @@ function useElementWidth<T extends HTMLElement>() {
 export function GrowthChart({ data }: { data: MonthlyPatientCount[] }) {
   const { ref, width } = useElementWidth<HTMLDivElement>()
   const [active, setActive] = useState<number | null>(null)
+  const inView = useInView(ref, { once: true, margin: "-120px" })
 
   const compact = width < 640
   const height = compact ? 280 : 380
@@ -77,8 +80,8 @@ export function GrowthChart({ data }: { data: MonthlyPatientCount[] }) {
           aria-label={`${GROWTH_YEAR}년 월별 해외환자 유치 수 차트`}>
           <defs>
             <linearGradient id="growth-area" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stopColor={INK} stopOpacity={0.07} />
-              <stop offset="100%" stopColor={INK} stopOpacity={0} />
+              <stop offset="0%" stopColor={ACCENT} stopOpacity={0.14} />
+              <stop offset="100%" stopColor={ACCENT} stopOpacity={0} />
             </linearGradient>
           </defs>
 
@@ -105,22 +108,26 @@ export function GrowthChart({ data }: { data: MonthlyPatientCount[] }) {
             <line x1={x(active)} x2={x(active)} y1={pad.top} y2={baseline} stroke="rgba(0,0,0,0.2)" strokeDasharray="2 3" />
           )}
 
-          <path d={areaPath} fill="url(#growth-area)" />
-          <path d={actualPath} fill="none" stroke={INK} strokeWidth={1.75} strokeLinejoin="round" />
-          <path d={forecastPath} fill="none" stroke="#9CA3AF" strokeWidth={1.75} strokeDasharray="5 5" />
+          <motion.path d={areaPath} fill="url(#growth-area)"
+            initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}} transition={{ duration: 0.8, delay: 1 }} />
+          <motion.path d={actualPath} fill="none" stroke={ACCENT} strokeWidth={2.25} strokeLinejoin="round"
+            initial={{ pathLength: 0 }} animate={inView ? { pathLength: 1 } : {}} transition={{ duration: 1.4, ease: EASE }} />
+          <motion.path d={forecastPath} fill="none" stroke={ACCENT} strokeOpacity={0.55} strokeWidth={2} strokeDasharray="5 5"
+            initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}} transition={{ duration: 0.6, delay: 1.4 }} />
 
           {data.map((d, i) => {
             const isActive = active === i
             const isLatest = i === lastActual
             const showLabel = (!compact || isLatest || i === data.length - 1) && !isActive
+            const delay = d.forecast ? 1.5 + (i - lastActual) * 0.1 : (i / lastActual) * 1.4
             return (
-              <g key={d.month}>
+              <motion.g key={d.month} initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}} transition={{ duration: 0.3, delay }}>
                 <circle
                   cx={x(i)}
                   cy={y(d.value)}
                   r={isActive ? 5.5 : isLatest ? 4.5 : 3}
-                  fill={d.forecast ? "#fff" : isLatest ? ACCENT : INK}
-                  stroke={d.forecast ? "#9CA3AF" : isLatest ? ACCENT : INK}
+                  fill={d.forecast ? "#fff" : ACCENT}
+                  stroke={ACCENT}
                   strokeWidth={1.5}
                 />
                 {showLabel && (
@@ -129,7 +136,7 @@ export function GrowthChart({ data }: { data: MonthlyPatientCount[] }) {
                     {nf.format(d.value)}
                   </text>
                 )}
-              </g>
+              </motion.g>
             )
           })}
         </svg>
@@ -137,7 +144,7 @@ export function GrowthChart({ data }: { data: MonthlyPatientCount[] }) {
 
       {activePoint && active !== null && (
         <div
-          className="pointer-events-none absolute z-10 min-w-[140px] border border-black/10 bg-white px-4 py-3 shadow-[0_8px_24px_-12px_rgba(0,0,0,0.25)]"
+          className="pointer-events-none absolute z-10 min-w-[140px] rounded-xl border border-black/10 bg-white px-4 py-3 shadow-[0_8px_24px_-12px_rgba(0,0,0,0.25)]"
           style={{
             left: x(active),
             top: y(activePoint.value),

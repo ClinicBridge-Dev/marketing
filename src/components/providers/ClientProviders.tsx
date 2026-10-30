@@ -34,7 +34,10 @@ export function ClientProviders({ children }: ClientProvidersProps) {
       <MetaTracking />
       {isBannerVisible && <TopBanner onDismiss={() => setIsBannerVisible(false)} />}
       <Header onMobileNavStateChange={handleMobileNavStateChange} topOffset={headerOffset} />
-      <main className={`transition-all duration-300 ${
+      {/* --header-h: 고정 헤더(+상단 배너) 높이. sticky 요소가 헤더 아래에 붙도록 섹션에서 참조한다 */}
+      <main
+        style={{ "--header-h": `${headerOffset + 64}px` } as React.CSSProperties}
+        className={`transition-all duration-300 ${
         isBannerVisible ? 'pt-[104px]' : 'pt-16'
       } ${isMobileNavOpen ? 'blur-sm bg-black/20' : ''}`}>
         {children}

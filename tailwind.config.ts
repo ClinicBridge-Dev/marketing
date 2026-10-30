@@ -56,7 +56,9 @@ const config: Config = {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
+        serif: ["var(--font-serif)", "Georgia", "serif"],
         sans: [
+          "var(--font-pretendard)",
           "Pretendard",
           "-apple-system",
           "BlinkMacSystemFont",

@@ -1,5 +1,6 @@
-// 메인 페이지 "숫자로 확인하는 해외 성장" 섹션의 월별 해외환자 유치 데이터.
-// 기준: 취소, 노쇼를 제외한 예약 건수. forecast=true 인 달은 예상치.
+// 메인 페이지 "숫자로 확인하는 클리닉브릿지 해외환자유치 성과" 섹션의 월별 예약자 수.
+// 기준: 계약 클라이언트 예약, 취소와 노쇼 제외. forecast=true 인 달은 예상치
+// (피부과 인바운드 시즌성과 최근 월간 성장률을 반영한 추정값, 화면에는 "예상" 구간으로만 표시).
 
 export interface MonthlyPatientCount {
   month: number
@@ -24,9 +25,6 @@ export const MONTHLY_PATIENTS: MonthlyPatientCount[] = [
   { month: 11, label: "11월", value: 3962, forecast: true },
   { month: 12, label: "12월", value: 4538, forecast: true },
 ]
-
-export const FORECAST_NOTE =
-  "예상치는 피부과 인바운드 시즌성(가을, 연말 성수기)과 최근 월간 성장률을 반영한 추정값"
 
 export interface GrowthSummary {
   latestActual: MonthlyPatientCount

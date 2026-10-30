@@ -14,8 +14,7 @@ import { cn } from "@/lib/utils"
 
 const navigation = [
   { name: "홈", href: "/" },
-  { name: "가격", href: "/pricing" },
-  { name: "블로그", href: "/blog" },
+  { name: "그로스LAB", href: "/blog" },
 ]
 
 interface HeaderProps {
@@ -70,7 +69,9 @@ export function Header({ onMobileNavStateChange, topOffset = 0 }: HeaderProps) {
                 style={{ filter: dark ? "brightness(0) invert(1)" : "brightness(0)" }}
               />
             </div>
-            <Logo size="md" variant={dark ? "light" : "dark"} />
+            {/* 두 로고를 미리 렌더링해 다크/화이트 전환 시 이미지 로딩 공백이 없게 한다 */}
+            <Logo size="md" variant="light" className={dark ? undefined : "hidden"} />
+            <Logo size="md" variant="dark" className={dark ? "hidden" : undefined} />
           </div>
 
           <nav className="hidden md:flex items-center space-x-8">

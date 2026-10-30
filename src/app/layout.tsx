@@ -1,9 +1,28 @@
 import type { Metadata } from "next"
 import Script from "next/script"
+import { Instrument_Serif } from "next/font/google"
+import localFont from "next/font/local"
 import "./globals.css"
 import { ClientProviders } from "@/components/providers/ClientProviders"
 import { GA_ID, GOOGLE_ADS_ID } from "@/lib/gtag"
 import { OPENAI_PIXEL_ID, getOpenAIPixelInitScript } from "@/lib/openaiPixel"
+
+// 본문 폰트: Pretendard 가변 폰트를 자체 호스팅 (CDN 장애나 지연으로 시스템 폰트로 대체되는 것을 방지)
+const pretendard = localFont({
+  src: "../../node_modules/pretendard/dist/web/variable/woff2/PretendardVariable.woff2",
+  weight: "45 920",
+  variable: "--font-pretendard",
+  display: "swap",
+})
+
+// 섹션 아이브로우의 영문 강조 단어용 세리프 (예: Proof in *Numbers*). 한글은 Pretendard 유지.
+const serif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  variable: "--font-serif",
+  display: "swap",
+})
 
 export const metadata: Metadata = {
   title: "클리닉브릿지 - 글로벌 의료 마케팅",
@@ -70,7 +89,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="ko" suppressHydrationWarning>
+    <html lang="ko" className={`${pretendard.variable} ${serif.variable}`} suppressHydrationWarning>
       <body className="antialiased" suppressHydrationWarning>
         {(GA_ID || GOOGLE_ADS_ID) && (
           <>
