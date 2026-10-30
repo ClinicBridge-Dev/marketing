@@ -178,7 +178,7 @@ function InsightCard({ item, style }: { item: InsightItem; style: (typeof CARD_S
         >
           {item.title}
         </h3>
-        <p className="mt-auto pt-2 text-xs text-gray-400">{item.dateLabel}</p>
+        <p className="mt-auto pt-2 text-xs text-gray-500">{item.dateLabel}</p>
       </div>
     </Link>
   )
@@ -200,7 +200,7 @@ function UpcomingCard({ item }: { item: InsightItem }) {
         <h3 className="mt-1 font-bold text-gray-900 text-base leading-snug line-clamp-2" style={{ wordBreak: "keep-all" }}>
           {item.title}
         </h3>
-        <p className="mt-auto pt-2 text-xs text-gray-400">{item.dateLabel}</p>
+        <p className="mt-auto pt-2 text-xs text-gray-500">{item.dateLabel}</p>
       </div>
     </div>
   )

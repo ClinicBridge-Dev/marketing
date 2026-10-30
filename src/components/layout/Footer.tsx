@@ -27,7 +27,7 @@ export function Footer() {
                 <Logo size="lg" variant="light" className="text-white" />
               </div>
               <p className="text-gray-300 mb-6 max-w-md">
-                클리닉브릿지는 글로벌 의료 마케팅 파트너입니다.
+                클리닉브릿지는 클리닉 그로스 컴퍼니입니다.
                 데이터 기반 전략과 검증된 운영으로 의료 마케팅의 성과를 설계합니다.
               </p>
               <div className="space-y-2 text-sm text-gray-300">

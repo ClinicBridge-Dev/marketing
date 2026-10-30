@@ -86,9 +86,9 @@ function ZeroToOneVisual() {
       <div className="mt-4 flex justify-between text-[11px] tabular-nums">
         <span className="text-white/70">
           26.03 계약
-          <span className="block text-white/40">월 매출 0원</span>
+          <span className="block text-white/55">월 매출 0원</span>
         </span>
-        <span className="self-end text-white/40">7개월</span>
+        <span className="self-end text-white/55">7개월</span>
         <span className="text-right text-white/70">
           26.09 달성
           <span className="block text-[#F08A6E]">월 매출 5억 원</span>
@@ -166,7 +166,7 @@ export function ProofCases() {
                   <ChannelMark tags={c.tags} />
                 </div>
               </div>
-              <span className="text-xs tabular-nums text-white/35">Case {String(i + 1).padStart(2, "0")}</span>
+              <span className="text-xs tabular-nums text-white/50">Case {String(i + 1).padStart(2, "0")}</span>
             </div>
 
             <p className="mt-10 text-base sm:text-lg text-white/70" style={{ wordBreak: "keep-all" }}>
@@ -177,7 +177,7 @@ export function ProofCases() {
 
             <div className="mt-10 lg:mt-auto lg:pt-10">{c.visual}</div>
 
-            {c.note && <p className="mt-6 text-[11px] text-white/35">{c.note}</p>}
+            {c.note && <p className="mt-6 text-[11px] text-white/50">{c.note}</p>}
           </div>
         </motion.article>
       ))}

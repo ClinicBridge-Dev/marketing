@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { motion, useReducedMotion } from "framer-motion"
+import { useOffscreenPause } from "@/lib/hooks/useOffscreenPause"
 
 // 역량 02 "Strategy & Execution" 사례 카드.
 // 원본: Strategy & Execution Cases 아티팩트(claude.ai)의 Case 01~03을 역순(레버, Thesis, 집중 바이럴)으로 배치한다. 탭 번호는 배열 순서로 매긴다. 실제 병원명은 가칭(A, C, D, E)으로 표기한다.
@@ -13,7 +14,7 @@ const ACCENT_SOFT = "#F6D9CF"
 const LINE = "#E6E1D9"
 const LINE_STRONG = "#CFC9BF"
 const MUTED = "#6B6B6B"
-const FAINT = "#A8A49D"
+const FAINT = "#78736C"
 const GREY_MARK = "#7F7A72"
 const FG = "#121212"
 const ROTATE_MS = 8000
@@ -206,7 +207,8 @@ export function StrategyCases() {
   const [cur, setCur] = useState(0)
   const [touched, setTouched] = useState(false)
   const [hovering, setHovering] = useState(false)
-  const running = !touched && !hovering && !reduceMotion
+  const { ref, paused } = useOffscreenPause()
+  const running = !touched && !hovering && !reduceMotion && !paused
 
   useEffect(() => {
     if (!running) return
@@ -219,6 +221,7 @@ export function StrategyCases() {
 
   return (
     <div
+      ref={ref}
       className="min-w-0 rounded-2xl bg-white px-6 pb-5 pt-5 shadow-[0_1px_0_#E6E1D9]"
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}

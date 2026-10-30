@@ -4,15 +4,17 @@ import { motion } from "framer-motion"
 import Link from "next/link"
 import { ArrowUpRight } from "lucide-react"
 import { Container } from "@/components/common/Container"
+import { useOffscreenPause } from "@/lib/hooks/useOffscreenPause"
 import { SectionIntro } from "./SectionIntro"
 
 const MARQUEE_WORDS = ["Clinic Growth Company", "Global GTM Strategy", "Japan", "English-speaking", "Taiwan", "Execution"]
 
 function TextMarquee() {
   const track = [...MARQUEE_WORDS, ...MARQUEE_WORDS]
+  const { ref, paused } = useOffscreenPause()
 
   return (
-    <div className="marquee-row overflow-hidden border-y border-white/10 py-6" aria-hidden>
+    <div ref={ref} data-offscreen={paused || undefined} className="marquee-row overflow-hidden border-y border-white/10 py-6" aria-hidden>
       <div className="flex w-max animate-marquee-left items-center gap-10" style={{ animationDuration: "50s" }}>
         {track.map((word, i) => (
           <span key={i} className="flex items-center gap-10 whitespace-nowrap">

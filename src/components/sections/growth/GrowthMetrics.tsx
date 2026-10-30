@@ -82,7 +82,7 @@ export function GrowthMetrics() {
             <GrowthChart data={MONTHLY_PATIENTS} />
           </div>
 
-          <p className="mt-4 text-right text-[11px] sm:text-xs text-gray-400">출처: 클리닉브릿지</p>
+          <p className="mt-4 text-right text-[11px] sm:text-xs text-gray-500">출처: 클리닉브릿지</p>
         </div>
 
         <div className="mt-4 sm:mt-6">

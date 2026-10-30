@@ -58,7 +58,8 @@ const config: Config = {
       fontFamily: {
         serif: ["var(--font-serif)", "Georgia", "serif"],
         sans: [
-          "var(--font-pretendard)",
+          // layout.tsx 에서 불러오는 Pretendard 동적 서브셋 (unicode-range 로 쓰인 글자 묶음만 받는다)
+          '"Pretendard Variable"',
           "Pretendard",
           "-apple-system",
           "BlinkMacSystemFont",

@@ -86,12 +86,12 @@ export function GrowthChart({ data }: { data: MonthlyPatientCount[] }) {
           </defs>
 
           <rect x={dividerX} y={pad.top - 20} width={width - pad.right - dividerX} height={innerH + 20} fill="#F6F5F2" />
-          <text x={dividerX + 8} y={pad.top - 6} fill="#9CA3AF" fontSize={11}>예상</text>
+          <text x={dividerX + 8} y={pad.top - 6} fill="#6B7280" fontSize={11}>예상</text>
 
           {Y_TICKS.map((t) => (
             <g key={t}>
               <line x1={pad.left} x2={width - pad.right} y1={y(t)} y2={y(t)} stroke="rgba(0,0,0,0.07)" />
-              <text x={pad.left - 10} y={y(t)} dy="0.32em" textAnchor="end" fill="#9CA3AF" fontSize={compact ? 10 : 11}>
+              <text x={pad.left - 10} y={y(t)} dy="0.32em" textAnchor="end" fill="#6B7280" fontSize={compact ? 10 : 11}>
                 {nf.format(t)}
               </text>
             </g>
@@ -99,7 +99,7 @@ export function GrowthChart({ data }: { data: MonthlyPatientCount[] }) {
 
           {data.map((d, i) => (
             <text key={d.month} x={x(i)} y={height - 8} textAnchor="middle" fontSize={compact ? 10 : 12}
-              fill={active === i ? INK : "#9CA3AF"}>
+              fill={active === i ? INK : "#6B7280"}>
               {compact ? d.month : d.label}
             </text>
           ))}
@@ -132,7 +132,7 @@ export function GrowthChart({ data }: { data: MonthlyPatientCount[] }) {
                 />
                 {showLabel && (
                   <text x={x(i)} y={y(d.value) - 12} textAnchor="middle" fontSize={compact ? 10 : 12} fontWeight={isLatest ? 600 : 500}
-                    fill={d.forecast ? "#9CA3AF" : isLatest ? ACCENT : "#374151"}>
+                    fill={d.forecast ? "#6B7280" : isLatest ? ACCENT : "#374151"}>
                     {nf.format(d.value)}
                   </text>
                 )}

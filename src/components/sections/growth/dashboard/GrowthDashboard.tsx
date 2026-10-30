@@ -1,8 +1,9 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { motion, useReducedMotion } from "framer-motion"
+import { useReducedMotion } from "framer-motion"
 import { cn } from "@/lib/utils"
+import { useOffscreenPause } from "@/lib/hooks/useOffscreenPause"
 import { RedactFilterDefs } from "./primitives"
 import { StageKpi } from "./StageKpi"
 import { StageGrowth } from "./StageGrowth"
@@ -65,26 +66,36 @@ function Strip() {
 export function GrowthDashboard({ className }: { className?: string }) {
   const { ref, scale, height } = useCanvasScale()
   const reduceMotion = useReducedMotion()
+  const { ref: viewRef, paused } = useOffscreenPause()
   const windowH = scale > 0 ? height / scale : 0
 
   return (
     <div
-      ref={ref}
+      ref={(el) => {
+        ref.current = el
+        viewRef.current = el
+      }}
       className={cn("relative h-full w-full overflow-hidden rounded-2xl bg-white", className)}
       aria-hidden
     >
       {scale > 0 && (
         <div className="absolute left-0 top-0 origin-top-left" style={{ width: CANVAS_W, height: windowH, transform: `scale(${scale})` }}>
           <RedactFilterDefs />
-          <motion.div
+          {/* CSS 애니메이션으로 돌리고, 화면 밖에서는 일시정지한다 (globals.css 의 cb-dashboard-scroll) */}
+          <div
             className="pt-8"
-            style={{ filter: `blur(${BLUR_PX}px)` }}
-            animate={reduceMotion ? undefined : { y: [0, -LOOP_H] }}
-            transition={{ duration: LOOP_SEC, ease: "linear", repeat: Infinity }}
+            style={
+              {
+                filter: `blur(${BLUR_PX}px)`,
+                "--loop-h": `${LOOP_H}px`,
+                animation: reduceMotion ? undefined : `cb-dashboard-scroll ${LOOP_SEC}s linear infinite`,
+                animationPlayState: paused ? "paused" : "running",
+              } as React.CSSProperties
+            }
           >
             <Strip />
             <Strip />
-          </motion.div>
+          </div>
         </div>
       )}
       {/* 위아래 페이드: 화면 밖으로 이어지는 긴 대시보드 느낌 */}

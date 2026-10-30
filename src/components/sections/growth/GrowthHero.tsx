@@ -12,6 +12,8 @@ import { ShaderBackground } from "./ShaderBackground"
 const EASE = [0.22, 1, 0.36, 1] as const
 
 // 시장명을 글자 단위로 굴리는 키네틱 타이포. 라벨 폭을 미리 재서 width 만 보간해 뒤 문구가 튀지 않게 한다.
+// 검색엔진과 화면낭독기에는 sr-only 라벨 하나만 텍스트로 남기고, 화면용 글자 조각, 폭 측정용 문구는
+// data-text + ::before 로 그려 DOM 텍스트에 섞이지 않게 한다 ("일본 일 본 일본영미권대만" 처럼 읽히는 문제 방지).
 function RollingMarket({ index }: { index: number }) {
   const measureRefs = useRef<(HTMLSpanElement | null)[]>([])
   const [widths, setWidths] = useState<number[]>([])
@@ -32,29 +34,31 @@ function RollingMarket({ index }: { index: number }) {
         animate={widths[index] ? { width: widths[index] } : undefined}
         transition={{ duration: 0.6, ease: EASE }}
       >
-        <span aria-hidden className="invisible whitespace-nowrap">{label}</span>
+        <span className="sr-only">{label}</span>
+        <span aria-hidden data-text={label} className="invisible whitespace-nowrap before:content-[attr(data-text)]" />
         <AnimatePresence initial={false}>
-          <motion.span key={label} className="absolute left-0 top-0 flex whitespace-nowrap" aria-label={label}>
+          <motion.span key={label} aria-hidden className="absolute left-0 top-0 flex whitespace-nowrap">
             {Array.from(label).map((ch, i) => (
               <motion.span
                 key={i}
-                aria-hidden
-                className="inline-block"
+                data-text={ch}
+                className="inline-block before:content-[attr(data-text)]"
                 initial={{ y: "105%" }}
                 animate={{ y: 0, transition: { duration: 0.7, delay: 0.12 + i * 0.05, ease: EASE } }}
                 exit={{ y: "-105%", transition: { duration: 0.5, delay: i * 0.04, ease: EASE } }}
-              >
-                {ch}
-              </motion.span>
+              />
             ))}
           </motion.span>
         </AnimatePresence>
       </motion.span>
       <span aria-hidden className="pointer-events-none absolute -left-[9999px] invisible">
         {TARGET_MARKETS.map((m, i) => (
-          <span key={m.key} ref={(el) => { measureRefs.current[i] = el }} className="whitespace-nowrap">
-            {m.label}
-          </span>
+          <span
+            key={m.key}
+            ref={(el) => { measureRefs.current[i] = el }}
+            data-text={m.label}
+            className="whitespace-nowrap before:content-[attr(data-text)]"
+          />
         ))}
       </span>
     </>
@@ -144,7 +148,7 @@ export function GrowthHero() {
                       type="button"
                       onClick={() => setIndex(i)}
                       aria-pressed={active}
-                      className={`w-full text-left text-sm transition-colors ${active ? "text-white" : "text-white/35 hover:text-white/70"}`}
+                      className={`w-full text-left text-sm transition-colors ${active ? "text-white" : "text-white/50 hover:text-white/70"}`}
                     >
                       <span className="block font-medium">{m.label}</span>
                       <span className="mt-3 block h-px w-full overflow-hidden bg-white/15">

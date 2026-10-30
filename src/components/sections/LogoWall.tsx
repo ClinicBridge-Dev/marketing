@@ -3,6 +3,7 @@
 import Image from "next/image"
 import { Container } from "@/components/common/Container"
 import { cn } from "@/lib/utils"
+import { useOffscreenPause } from "@/lib/hooks/useOffscreenPause"
 import { LogoItem, PARTNER_LOGOS } from "@/data/partners"
 
 // 더스퀘어덱(thesquare-deck) index.html의 "함께한 곳" 로고 월을 클론.
@@ -30,9 +31,10 @@ function LogoTile({ item, ariaHidden = false, monochrome = false }: { item: Logo
 
 function MarqueeRow({ items, direction, monochrome }: { items: LogoItem[]; direction: "left" | "right"; monochrome?: boolean }) {
   const track = [...items, ...items]
+  const { ref, paused } = useOffscreenPause()
 
   return (
-    <div className="marquee-row overflow-hidden">
+    <div ref={ref} data-offscreen={paused || undefined} className="marquee-row overflow-hidden">
       <div
         className={cn(
           "flex items-center w-max gap-10 sm:gap-12",

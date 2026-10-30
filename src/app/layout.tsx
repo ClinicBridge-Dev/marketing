@@ -1,19 +1,13 @@
 import type { Metadata } from "next"
 import Script from "next/script"
 import { Instrument_Serif } from "next/font/google"
-import localFont from "next/font/local"
+// 본문 폰트: Pretendard 가변 폰트 동적 서브셋을 자체 호스팅한다.
+// 2MB 단일 파일 대신 92개 조각에 unicode-range 가 걸려 있어, 페이지에 실제로 쓰인 글자 묶음만 받는다.
+import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css"
 import "./globals.css"
 import { ClientProviders } from "@/components/providers/ClientProviders"
 import { GA_ID, GOOGLE_ADS_ID } from "@/lib/gtag"
 import { OPENAI_PIXEL_ID, getOpenAIPixelInitScript } from "@/lib/openaiPixel"
-
-// 본문 폰트: Pretendard 가변 폰트를 자체 호스팅 (CDN 장애나 지연으로 시스템 폰트로 대체되는 것을 방지)
-const pretendard = localFont({
-  src: "../../node_modules/pretendard/dist/web/variable/woff2/PretendardVariable.woff2",
-  weight: "45 920",
-  variable: "--font-pretendard",
-  display: "swap",
-})
 
 // 섹션 아이브로우의 영문 강조 단어용 세리프 (예: Proof in *Numbers*). 한글은 Pretendard 유지.
 const serif = Instrument_Serif({
@@ -25,9 +19,9 @@ const serif = Instrument_Serif({
 })
 
 export const metadata: Metadata = {
-  title: "클리닉브릿지 - 글로벌 의료 마케팅",
-  description: "데이터 기반 전략과 검증된 운영으로 글로벌 의료 마케팅의 성과를 설계합니다.",
-  keywords: "글로벌 의료 마케팅, 인바운드 의료 관광, 글로벌 환자 유치, 메디컬 마케팅, 클리닉브릿지",
+  title: "클리닉브릿지 | 클리닉 그로스 컴퍼니",
+  description: "우리 병원의 전략 수립부터 마케팅, 상담, 예약 전환까지. 클리닉브릿지는 해외환자 매출을 책임지는 전담 그로스 팀입니다.",
+  keywords: "클리닉 그로스 컴퍼니, 해외환자 유치, 글로벌 환자 유치, 인바운드 의료 관광, 메디컬 마케팅, 클리닉브릿지",
   authors: [{ name: "클리닉브릿지" }],
   creator: "클리닉브릿지",
   publisher: "클리닉브릿지",
@@ -41,8 +35,8 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "클리닉브릿지 - 글로벌 의료 마케팅",
-    description: "데이터 기반 전략과 검증된 운영으로 글로벌 의료 마케팅의 성과를 설계합니다.",
+    title: "클리닉브릿지 | 클리닉 그로스 컴퍼니",
+    description: "우리 병원의 전략 수립부터 마케팅, 상담, 예약 전환까지. 클리닉브릿지는 해외환자 매출을 책임지는 전담 그로스 팀입니다.",
     url: "https://clinicbridge.co.kr",
     siteName: "클리닉브릿지",
     images: [
@@ -50,7 +44,7 @@ export const metadata: Metadata = {
         url: "/og-image-v2.jpg",
         width: 1200,
         height: 630,
-        alt: "클리닉브릿지 - 글로벌 의료 마케팅",
+        alt: "클리닉브릿지 | 클리닉 그로스 컴퍼니",
       },
     ],
     locale: "ko_KR",
@@ -58,8 +52,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "클리닉브릿지 - 글로벌 의료 마케팅",
-    description: "데이터 기반 전략과 검증된 운영으로 글로벌 의료 마케팅의 성과를 설계합니다.",
+    title: "클리닉브릿지 | 클리닉 그로스 컴퍼니",
+    description: "우리 병원의 전략 수립부터 마케팅, 상담, 예약 전환까지. 클리닉브릿지는 해외환자 매출을 책임지는 전담 그로스 팀입니다.",
     images: ["/og-image-v2.jpg"],
   },
   robots: {
@@ -89,7 +83,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="ko" className={`${pretendard.variable} ${serif.variable}`} suppressHydrationWarning>
+    <html lang="ko" className={serif.variable} suppressHydrationWarning>
       <body className="antialiased" suppressHydrationWarning>
         {(GA_ID || GOOGLE_ADS_ID) && (
           <>

@@ -121,8 +121,21 @@
 
 .marquee-row:hover .animate-marquee-left,
 .marquee-row:hover .animate-marquee-right,
-.marquee-row:hover .animate-marquee-slow {
+.marquee-row:hover .animate-marquee-slow,
+.marquee-row[data-offscreen] .animate-marquee-left,
+.marquee-row[data-offscreen] .animate-marquee-right,
+.marquee-row[data-offscreen] .animate-marquee-slow {
   animation-play-state: paused;
+}
+
+/* 역량 03 대시보드의 세로 무한 스크롤. 한 바퀴 높이는 --loop-h 로 받는다. */
+@keyframes cb-dashboard-scroll {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(calc(-1 * var(--loop-h)));
+  }
 }
 
 .scrollbar-hide {

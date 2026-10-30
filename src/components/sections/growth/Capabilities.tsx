@@ -14,7 +14,7 @@ import { STRATEGY_INTRO, StrategyCases } from "./StrategyCases"
 
 // ─────────────────────────────────────────────────────────────
 // 역량 섹션: 대형 인덱스 + 스크롤 스택 패널
-// 데스크톱(lg, 화면 높이 760px 이상)에서는 각 역량이 헤더 아래에 붙는 풀스크린 패널이 되고,
+// 데스크톱(lg, 화면 높이 880px 이상)에서는 각 역량이 헤더 아래에 붙는 풀스크린 패널이 되고,
 // 다음 패널이 위로 덮으며 올라오는 동안 이전 패널은 살짝 축소, 어두워진다.
 // 그 외 환경에서는 패널이 일반 블록처럼 차례로 쌓인다.
 // ─────────────────────────────────────────────────────────────
@@ -93,7 +93,7 @@ function CapabilityIndex() {
                 {c.en}
               </span>
               <ChevronRight className="h-6 w-6 sm:h-8 sm:w-8 shrink-0 self-center -translate-x-2 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100 text-[#C1452D]" />
-              <span className="hidden sm:inline text-sm text-gray-400 transition-colors group-hover:text-[#C1452D]">{c.ko}</span>
+              <span className="hidden sm:inline text-sm text-gray-500 transition-colors group-hover:text-[#C1452D]">{c.ko}</span>
             </a>
           </motion.li>
         ))}
@@ -155,7 +155,7 @@ function DataPanelBody({ capability: c }: { capability: Capability }) {
         </div>
       </div>
       {/* 고정 높이 패널(sticky)에서는 남은 높이를 채우고, 그 외에는 캔버스 비율로 높이를 잡는다 */}
-      <div className="aspect-[1200/675] w-full lg:[@media(min-height:760px)]:aspect-auto lg:[@media(min-height:760px)]:min-h-0 lg:[@media(min-height:760px)]:flex-1">
+      <div className="aspect-[1200/675] w-full lg:[@media(min-height:880px)]:aspect-auto lg:[@media(min-height:880px)]:min-h-0 lg:[@media(min-height:880px)]:flex-1">
         <GrowthDashboard />
       </div>
     </div>
@@ -184,8 +184,8 @@ function CapabilityPanel({ capability: c, index, total, progress }: PanelProps) 
       id={c.id}
       className={cn(
         "scroll-mt-[var(--header-h,64px)] mb-6 lg:mb-0",
-        "lg:[@media(min-height:760px)]:sticky lg:[@media(min-height:760px)]:top-[calc(var(--header-h,64px)+16px)]",
-        "lg:[@media(min-height:760px)]:h-[calc(100vh-var(--header-h,64px)-32px)] lg:[@media(min-height:760px)]:mb-8"
+        "lg:[@media(min-height:880px)]:sticky lg:[@media(min-height:880px)]:top-[calc(var(--header-h,64px)+16px)]",
+        "lg:[@media(min-height:880px)]:h-[calc(100vh-var(--header-h,64px)-32px)] lg:[@media(min-height:880px)]:mb-8"
       )}
     >
       <motion.article
@@ -199,7 +199,7 @@ function CapabilityPanel({ capability: c, index, total, progress }: PanelProps) 
         <motion.div aria-hidden style={{ opacity: dim }} className="pointer-events-none absolute inset-0 z-10 bg-black" />
 
         {/* 상단 바: 진행 표시 */}
-        <div className={cn("flex items-center justify-between text-sm", dark ? "text-white/50" : "text-gray-400")}>
+        <div className={cn("flex items-center justify-between text-sm", dark ? "text-white/60" : "text-gray-500")}>
           <span className="tabular-nums">
             <span className={dark ? "text-[#F08A6E]" : "text-[#C1452D]"}>{String(index + 1).padStart(2, "0")}</span>
             {" "}/ {String(total).padStart(2, "0")}
