@@ -179,19 +179,18 @@ colors: {
 
 ## 🧪 테스트
 
-### 폼 테스트
+### 자동 테스트
 
 ```bash
-# curl을 사용한 API 테스트
-curl -X POST http://localhost:3000/api/contact \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "테스트",
-    "phone": "010-1234-5678",
-    "email": "test@example.com",
-    "message": "테스트 문의입니다."
-  }'
+npm run lint       # 코드 규칙
+npm run typecheck  # 타입 검사
+npm test           # 자동 테스트 (외부 서비스로 실제 요청을 보내지 않음)
+npm run build      # 운영 빌드
 ```
+
+PR마다 GitHub Actions가 위 네 가지를 자동으로 실행합니다. 테스트 목록과 작성 방법은 [docs/testing/README.md](docs/testing/README.md)를 참고하세요.
+
+> 로컬 서버에 실제로 폼을 제출하면 `.env.local`에 설정된 Slack·시트·메일로 알림이 나갑니다. 동작 확인은 자동 테스트로 하고, 실제 제출은 꼭 필요할 때만 하세요.
 
 ### 성능 테스트
 
@@ -264,11 +263,13 @@ npm run build:css
 
 ## 🤝 기여하기
 
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+`master`에 직접 커밋하지 않고, 작업 브랜치 → PR → 리뷰 → 머지 순서로 진행합니다. 자세한 규칙은 [AGENTS.md](AGENTS.md)의 "Git 작업 흐름", 리뷰 기준은 [rules.md](rules.md)를 따릅니다.
+
+1. 최신 `master`에서 작업 브랜치 만들기 (`git switch -c feat/작업-이름`)
+2. 커밋 전 `npm run lint`, `npm run typecheck`, `npm test` 통과
+3. Push 후 PR 열기 (`gh pr create`), PR 양식 채우기
+4. CI 검사 통과, 리뷰 지적 반영, 사람 1명 승인
+5. 머지 후 브랜치 삭제
 
 ## 📞 문의
 

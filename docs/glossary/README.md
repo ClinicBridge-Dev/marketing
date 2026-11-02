@@ -33,3 +33,16 @@
 | 그로스LAB | 기존 "블로그"의 새 이름. 시장별 해외환자 마케팅 리서치와 인사이트를 공유하는 곳 (경로는 `/blog` 유지) | `src/app/blog`, 헤더, 푸터 |
 | 공개 예정 칼럼 | 그로스LAB에 미리 노출하는, 아직 클릭할 수 없는 칼럼 카드 | `UPCOMING_COLUMNS` (`src/data/blogPosts.ts`) |
 | 파트너십 문의 | 메인 CTA. `/inquiry` 로 연결. 가격 페이지(`/pricing`)는 제거되어 `/inquiry` 로 임시 리다이렉트 | `next.config.ts` |
+
+## 개발 프로세스
+
+| 용어 | 뜻 | 코드·문서 |
+| --- | --- | --- |
+| 작업 브랜치 | `master`에서 갈라져 한 가지 작업만 담는 브랜치. `feat/`, `fix/`, `docs/`, `chore/`, `practice/`로 시작 | `AGENTS.md` Git 작업 흐름 |
+| PR (Pull Request) | 작업 브랜치의 변경을 `master`에 합쳐 달라는 요청. CI 검사, 리뷰, 사람 승인 후 머지 | `.github/pull_request_template.md` |
+| CI 검사 (`check`) | PR마다 GitHub Actions가 실행하는 lint, typecheck, test, build. 브랜치 규칙의 머지 필수 조건 | `.github/workflows/ci.yml`, `docs/testing/README.md` |
+| 자동 테스트 | `npm test`로 실행하는 테스트. 외부 서비스로 실제 요청을 보내지 않음 | `tests/`, `docs/testing/README.md` |
+| 리뷰 룰 (`rules.md`) | PR 리뷰 때 사람과 AI 리뷰어(Codex, Claude)가 함께 쓰는 판단 기준. Codex용 요약은 `AGENTS.md`의 `Code Review Rules` | `rules.md` |
+| 심각도 (critical / major / minor / nit) | 리뷰 지적의 등급. 다음 행동(머지 금지, 사람 승인, 승인 후보, 참고)을 정함. critical은 Codex의 P0, major는 P1. GitHub의 Codex 리뷰는 P0·P1만 코멘트로 남김 | `rules.md` 1장 |
+| 오탐 / 미탐 | 오탐: 문제없는 코드를 문제라고 잘못 지적함. 미탐: 실제 문제를 놓침. 반복되는 오탐만 리뷰 룰에 반영 | `rules.md` 9장 |
+
