@@ -39,7 +39,7 @@
 | 용어 | 뜻 | 코드·문서 |
 | --- | --- | --- |
 | 작업 브랜치 | `master`에서 갈라져 한 가지 작업만 담는 브랜치. `feat/`, `fix/`, `docs/`, `chore/`, `practice/`로 시작 | `AGENTS.md` Git 작업 흐름 |
-| PR (Pull Request) | 작업 브랜치의 변경을 `master`에 합쳐 달라는 요청. CI 검사, 리뷰, 사람 승인 후 머지 | `.github/pull_request_template.md` |
+| PR (Pull Request) | 작업 브랜치의 변경을 `master`에 합쳐 달라는 요청. CI 검사와 리뷰를 확인한 뒤 사람이 머지 (현재 필수 승인 0명, 추후 1명) | `.github/pull_request_template.md` |
 | CI 검사 (`check`) | PR마다 GitHub Actions가 실행하는 lint, typecheck, test, build. 브랜치 규칙의 머지 필수 조건 | `.github/workflows/ci.yml`, `docs/testing/README.md` |
 | 자동 테스트 | `npm test`로 실행하는 테스트. 외부 서비스로 실제 요청을 보내지 않음 | `tests/`, `docs/testing/README.md` |
 | 리뷰 룰 (`rules.md`) | PR 리뷰 때 사람과 AI 리뷰어(Codex, Claude)가 함께 쓰는 판단 기준. Codex용 요약은 `AGENTS.md`의 `Code Review Rules` | `rules.md` |

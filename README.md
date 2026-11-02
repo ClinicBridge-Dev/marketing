@@ -268,7 +268,7 @@ npm run build:css
 1. 최신 `master`에서 작업 브랜치 만들기 (`git switch -c feat/작업-이름`)
 2. 커밋 전 `npm run lint`, `npm run typecheck`, `npm test` 통과
 3. Push 후 PR 열기 (`gh pr create`), PR 양식 채우기
-4. CI 검사 통과, 리뷰 지적 반영, 사람 1명 승인
+4. CI 검사 통과, 리뷰 지적 반영, 변경 내용 직접 재확인 (현재는 작성자가 직접 머지, 추후 승인 1명 필수로 전환 예정)
 5. 머지 후 브랜치 삭제
 
 ## 📞 문의
