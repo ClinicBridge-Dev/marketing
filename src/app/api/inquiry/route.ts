@@ -67,6 +67,7 @@ export async function POST(req: Request) {
     // 같은 값을 event_id로 써서 중복 집계를 막는다. 같은 사람·같은 날 재제출은 같은 값이 된다 (lib/inquiryEventId).
     const receivedAt = new Date()
     const inquiryId = createInquiryEventId({ email, phone, receivedAt })
+    console.log("📥 도입 상담 접수:", { inquiryId, hospitalName, name, phone, email })
 
     const countriesLine = targetCountries.join(", ")
     const interestsLine = interests.join(", ")

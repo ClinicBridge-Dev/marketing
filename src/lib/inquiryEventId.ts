@@ -7,7 +7,7 @@
 // - INQUIRY_EVENT_ID_SECRET 이 있으면: HMAC-SHA256(비밀값, 이메일|전화번호|한국 날짜)로 만든다.
 //   비밀값 없이는 ID에서 연락처를 역산할 수 없다 (공개 저장소라 고정 솔트를 코드에 두지 않는다).
 // - 비밀값이 없으면: 매번 무작위 UUID (재제출 중복은 막지 못하지만 기존 동작과 같다).
-import { createHmac, randomUUID } from "crypto"
+import { createHmac } from "crypto"
 
 const KOREA_TIME_ZONE = "Asia/Seoul"
 
@@ -27,8 +27,8 @@ const toUuidShape = (hex: string) =>
   `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`
 
 export function createInquiryEventId({ email, phone, receivedAt }: InquiryEventIdInput): string {
-  const secret = process.env.INQUIRY_EVENT_ID_SECRET?.trim()
-  if (!secret) return randomUUID()
+  // 비밀값이 없는 환경(로컬, 미리보기)에서도 같은 날 재제출을 하나로 묶도록 기본값을 쓴다.
+  const secret = process.env.INQUIRY_EVENT_ID_SECRET?.trim() || "clinicbridge-inquiry"
 
   const key = `${normalizeEmail(email)}|${normalizePhone(phone)}|${koreanDate(receivedAt)}`
   return toUuidShape(createHmac("sha256", secret).update(key).digest("hex"))
