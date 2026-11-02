@@ -20,6 +20,11 @@ const eslintConfig = [
       "next-env.d.ts",
     ],
   },
+  {
+    // CommonJS로 작성하는 파일(node:test 테스트, Tailwind 플러그인 등록)은 require()를 쓴다.
+    files: ["**/*.cjs", "tailwind.config.ts"],
+    rules: { "@typescript-eslint/no-require-imports": "off" },
+  },
 ];
 
 export default eslintConfig;
