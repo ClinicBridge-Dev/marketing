@@ -41,3 +41,15 @@
   필수 승인은 사용자 결정으로 **0명**(작성자 셀프 머지). 추후 1명으로 전환 예정. `AGENTS.md`·`rules.md`·`README.md`·용어사전 문구를 이에 맞춤.
 - Codex GitHub 연동 후 연습 PR에서 `@codex review` 1회당 사용량 확인 → 자동 리뷰 여부 결정.
 - 로컬 작업 폴더 정리: `master`를 최신으로 받기 전에 미커밋 작업(OpenAI 서버 전환)을 별도 브랜치로 옮겨야 함.
+
+## Codex 저장소 자동 리뷰 연동 시험
+
+- ChatGPT(Codex)는 ClinicBridge-Dev GitHub 계정과 연결. `marketing` 저장소 설정에서 자동 리뷰를 켬 (리뷰 대상·트리거·철저한 검토는 저장소 값으로 지정, 크레딧 사용 끔).
+- `@codex review`를 ChatGPT와 연결되지 않은 계정(taejeongjeon-clinicbridge)으로 쓰면 "Codex 계정을 연결하라"는 답만 옴 (PR #8, 닫음).
+- 연습 PR #9(결함 2건을 넣고 PR #7 브랜치 위에 올림): 연결되지 않은 계정이 연 PR에도 자동 리뷰 실행, 약 1분 13초.
+  - 신청자 정보 서버 로그 출력 → P1로 지적 (CI 테스트는 못 잡음).
+  - 고정 비밀값으로 접수 ID 생성 → P1로 지적 (CI 테스트도 잡음).
+  - 오탐 없음. 두 지적 모두 `AGENTS.md` Code Review Rules 줄을 근거로 인용.
+  - PR #9는 머지하지 않고 닫고 연습 브랜치 삭제.
+- 리뷰가 영어로 달려서 `AGENTS.md` Code Review Rules와 `rules.md` 5장에 "한국어로 작성" 규칙 추가.
+
