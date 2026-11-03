@@ -19,10 +19,17 @@
   - `src/app/api/` 아래에 이름에 `debug`·`test`가 들어간 라우트를 두지 않는다.
 - `docs/testing/README.md` 테스트 목록 갱신.
 
+### Codex 리뷰 반영 (PR #10)
+- Codex 자동 리뷰가 한국어로 달림 (언어 규칙 반영 확인).
+- 지적(P1): 새 검사가 `process.env.X.substring()`만 찾아서, 변수에 담은 뒤 자르는 `src/lib/trello.ts`의 키·토큰 일부 로그를 놓침 → 맞는 지적.
+- 추가 확인: `getTrelloConfig()`가 키·토큰 형식이 틀리면 **값 전체를 로그로 출력**하고 있었음.
+- 수정: `src/lib/trello.ts`에서 키·토큰·인증 헤더를 출력하던 로그를 모두 삭제하고 설정 여부·길이만 남김.
+  테스트를 `apiKey`·`token`·`secret`·`authHeader` 이름의 변수까지 검사하도록 넓히고, 비밀값 변수를 로그에 그대로 넘기는 경우도 검사.
+
 ### 테스트
-- `npm run lint` 오류 0, `npm run typecheck` 통과, `npm test` vitest 33개 + node:test 6개 통과, `npm run build` 통과.
-- 삭제 전 코드로 되돌려 새 테스트 2개가 실패하는 것 확인 후 원복.
+- `npm run lint` 오류 0, `npm run typecheck` 통과, `npm test` vitest 34개 + node:test 6개 통과, `npm run build` 통과.
+- 수정 전 코드로 되돌려 새 테스트들이 실패하는 것 확인 후 원복.
 
 ### 배포 후 할 일 (사람)
-- Trello API 키·토큰 재발급 후 Vercel 환경변수 교체, 재배포.
+- Trello API 키·토큰 재발급 후 Vercel 환경변수 교체, 재배포 (응답·로그로 노출됐을 수 있으므로).
 - 운영에서 두 주소가 404인지 확인.

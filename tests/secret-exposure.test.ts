@@ -10,6 +10,8 @@ const SRC_DIR = "src"
 // 서버에서만 써야 하는 모듈. 브라우저 코드("use client")에서 불러오면 비밀값이 번들에 섞일 수 있다.
 const SERVER_ONLY_MODULES = ["slack", "googleSheets", "trello", "inquiryEventId"]
 // 이름에 이런 말이 들어간 환경변수는 브라우저에 공개되는 NEXT_PUBLIC_ 으로 만들면 안 된다.
+// 비밀값을 담는 변수 이름에 흔히 들어가는 말. 이런 변수는 잘라서든 통째로든 로그에 남기지 않는다.
+const SECRET_VARIABLE_NAMES = "apiKey|api_key|token|secret|password|authHeader"
 const SECRET_NAME_PATTERN = /NEXT_PUBLIC_[A-Z0-9_]*(SECRET|TOKEN|API_KEY|WEBHOOK|PASSWORD|PRIVATE)/
 
 function listSourceFiles(dir: string): string[] {
@@ -48,11 +50,22 @@ describe("비밀값 노출 방지", () => {
     expect(violations).toEqual([])
   })
 
-  it("환경변수 값을 잘라서라도 출력하지 않는다 (앞 글자 일부도 비밀값 노출)", () => {
+  it("비밀값을 잘라서라도 출력하지 않는다 (앞 글자 일부도 비밀값 노출)", () => {
+    // process.env.X.substring(...) 처럼 직접 자르는 경우와, apiKey·token 같은 이름의 변수에 담아 자르는 경우를 모두 찾는다.
+    const pattern = new RegExp(
+      `(process\\.env\\.[A-Z0-9_]+|\\b\\w*(${SECRET_VARIABLE_NAMES})\\w*)\\??\\.(substring|slice|substr)\\(`,
+      "gi",
+    )
     const violations = sourceFiles.flatMap(({ path, code }) =>
-      [...code.matchAll(/process\.env\.([A-Z0-9_]+)\??\.(substring|slice|substr)\(/g)].map(
-        (match) => `${path}: ${match[1]}`,
-      ),
+      [...code.matchAll(pattern)].map((match) => `${path}: ${match[1]}`),
+    )
+    expect(violations).toEqual([])
+  })
+
+  it("비밀값 변수를 로그에 그대로 넘기지 않는다", () => {
+    const pattern = new RegExp(`console\\.\\w+\\([^)]*,\\s*\\w*(${SECRET_VARIABLE_NAMES})\\w*\\s*\\)`, "gi")
+    const violations = sourceFiles.flatMap(({ path, code }) =>
+      [...code.matchAll(pattern)].map((match) => `${path}: ${match[0]}`),
     )
     expect(violations).toEqual([])
   })
