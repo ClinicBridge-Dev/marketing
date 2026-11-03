@@ -48,6 +48,22 @@ describe("비밀값 노출 방지", () => {
     expect(violations).toEqual([])
   })
 
+  it("환경변수 값을 잘라서라도 출력하지 않는다 (앞 글자 일부도 비밀값 노출)", () => {
+    const violations = sourceFiles.flatMap(({ path, code }) =>
+      [...code.matchAll(/process\.env\.([A-Z0-9_]+)\??\.(substring|slice|substr)\(/g)].map(
+        (match) => `${path}: ${match[1]}`,
+      ),
+    )
+    expect(violations).toEqual([])
+  })
+
+  it("인증 없는 디버그·테스트용 API 라우트를 두지 않는다", () => {
+    const apiDirs = readdirSync(join(SRC_DIR, "app", "api"), { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name)
+    expect(apiDirs.filter((name) => /debug|test/i.test(name))).toEqual([])
+  })
+
   it("실제 값이 든 .env 파일을 커밋하지 않는다 (.env.example 만 허용)", () => {
     const tracked = execSync("git ls-files", { encoding: "utf8" }).split("\n")
     const envFiles = tracked.filter((file) => /(^|\/)\.env(\.|$)/.test(file) && !file.endsWith(".env.example"))

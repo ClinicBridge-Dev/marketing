@@ -21,7 +21,7 @@ PR마다 GitHub Actions(`.github/workflows/ci.yml`)가 아래 네 가지를 실�
 | `tests/inquiry-event-id.test.ts` | 접수 ID: 같은 사람·같은 한국 날짜는 같은 ID, 표기 차이 무시, 날짜·비밀값이 바뀌면 다른 ID, 연락처가 ID에 드러나지 않음, 비밀값 없으면 무작위 UUID | R04 |
 | `tests/notification-modules.test.ts` | Slack·구글 시트 모듈: 설정이 없으면 건너뜀, 네트워크 오류에도 예외를 던지지 않음, 시트는 응답 JSON `ok`까지 확인, 시트 비밀값 전송 | R03 |
 | `tests/openai-pixel.test.ts` | OpenAI `lead_created`: 같은 접수 ID는 한 번만, 빈 ID·픽셀 ID 없음이면 전송 안 함, SDK 오류가 접수 흐름을 깨지 않음 | R04 |
-| `tests/secret-exposure.test.ts` | 비밀값 노출 정적 검사: 브라우저 코드가 서버 환경변수·서버 전용 모듈을 쓰지 않음, 비밀값 이름에 `NEXT_PUBLIC_` 금지, `.env` 파일 커밋 금지 | R01 |
+| `tests/secret-exposure.test.ts` | 비밀값 노출 정적 검사: 브라우저 코드가 서버 환경변수·서버 전용 모듈을 쓰지 않음, 비밀값 이름에 `NEXT_PUBLIC_` 금지, 환경변수 값을 잘라서 출력 금지, `src/app/api/` 아래 디버그·테스트용 라우트 금지, `.env` 파일 커밋 금지 | R01 |
 | `tests/meta-pixel.test.cjs` | Meta 픽셀: 방문·상담 이벤트 분리, 중복 방지, 폼 값·쿼리 문자열 미전송 (`docs/analytics/meta-pixel.md`) | R02, R04 |
 
 ## 테스트를 추가할 때
