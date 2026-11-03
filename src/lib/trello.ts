@@ -121,25 +121,23 @@ export function getTrelloConfig(): TrelloConfig | null {
   const boardId = process.env.TRELLO_BOARD_ID?.trim()
   const listId = process.env.TRELLO_LIST_ID?.trim()
 
-  // 디버깅을 위한 로그
+  // 설정 여부만 남긴다. 값은 일부라도 로그에 남기지 않는다 (rules.md R01).
   console.log('🔍 Trello 환경변수 확인:', {
-    apiKey: apiKey ? `${apiKey.substring(0, 8)}... (길이: ${apiKey.length})` : '❌ 없음',
-    token: token ? `${token.substring(0, 8)}... (길이: ${token.length})` : '❌ 없음',
-    boardId: boardId ? `${boardId.substring(0, 8)}... (길이: ${boardId.length})` : '❌ 없음',
-    listId: listId ? `${listId.substring(0, 8)}... (길이: ${listId.length})` : '❌ 없음',
+    apiKey: apiKey ? '설정됨' : '❌ 없음',
+    token: token ? '설정됨' : '❌ 없음',
+    boardId: boardId ? '설정됨' : '❌ 없음',
+    listId: listId ? '설정됨' : '❌ 없음',
   })
 
   // API 키 형식 검증
   if (apiKey && !/^[a-f0-9]{32}$/.test(apiKey)) {
-    console.error('❌ API 키 형식이 올바르지 않습니다. 32자리 영숫자여야 합니다.')
-    console.error('❌ 현재 API 키:', apiKey)
+    console.error('❌ API 키 형식이 올바르지 않습니다. 32자리 영숫자여야 합니다. (현재 길이:', apiKey.length, ')')
     return null
   }
 
   // 토큰 형식 검증 (ATTA로 시작하는 새로운 형식)
   if (token && !/^ATTA[a-f0-9]{64}$/.test(token)) {
-    console.error('❌ 토큰 형식이 올바르지 않습니다. ATTA로 시작하는 68자리여야 합니다.')
-    console.error('❌ 현재 토큰:', token)
+    console.error('❌ 토큰 형식이 올바르지 않습니다. ATTA로 시작하는 68자리여야 합니다. (현재 길이:', token.length, ')')
     return null
   }
 
@@ -174,7 +172,6 @@ export async function testTrelloAuth(config: TrelloConfig): Promise<boolean> {
     // OAuth 헤더 방식으로 인증 시도 (새로운 토큰 형식)
     const authHeader = `OAuth oauth_consumer_key="${apiKey}", oauth_token="${token}"`
     
-    console.log("🔍 인증 헤더:", authHeader.substring(0, 50) + "...")
     console.log("🚀 Trello API 요청 URL:", url)
     
     const response = await fetch(url, {
@@ -198,9 +195,6 @@ export async function testTrelloAuth(config: TrelloConfig): Promise<boolean> {
         statusText: response.statusText,
         error: errorData,
         url: url,
-        apiKey: `${apiKey.substring(0, 8)}...`,
-        token: `${token.substring(0, 8)}...`,
-        authHeader: authHeader.substring(0, 50) + '...'
       })
       return false
     }
@@ -214,48 +208,5 @@ export async function testTrelloAuth(config: TrelloConfig): Promise<boolean> {
   } catch (error) {
     console.error('❌ Trello API 인증 테스트 실패:', error)
     return false
-  }
-}
-
-/**
- * Trello 보드의 리스트 목록을 가져오는 함수 (디버깅용)
- */
-export interface TrelloList {
-  id: string
-  name: string
-  closed: boolean
-  idBoard: string
-  pos: number
-}
-
-export async function getTrelloLists(config: TrelloConfig): Promise<TrelloList[]> {
-  const { apiKey, token, boardId } = config
-  
-  const url = `https://api.trello.com/1/boards/${boardId}/lists`
-  const params = new URLSearchParams({
-    key: apiKey,
-    token: token,
-  })
-
-  try {
-    // OAuth 헤더 방식으로 인증
-    const authHeader = `OAuth oauth_consumer_key="${apiKey}", oauth_token="${token}"`
-    
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Authorization': authHeader,
-        'Content-Type': 'application/json'
-      }
-    })
-    
-    if (!response.ok) {
-      throw new Error(`Trello API 오류: ${response.status}`)
-    }
-
-    return await response.json()
-  } catch (error) {
-    console.error('Trello 리스트 조회 실패:', error)
-    throw error
   }
 }

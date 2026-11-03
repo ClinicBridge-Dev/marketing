@@ -49,13 +49,6 @@ export async function POST(req: Request) {
     }
 
     // Trello 카드 생성 - 강제 실행
-    console.log("🔍 환경변수 직접 확인:", {
-      TRELLO_API_KEY: process.env.TRELLO_API_KEY ? `${process.env.TRELLO_API_KEY.substring(0, 8)}...` : "❌ 없음",
-      TRELLO_API_TOKEN: process.env.TRELLO_API_TOKEN ? `${process.env.TRELLO_API_TOKEN.substring(0, 8)}...` : "❌ 없음",
-      TRELLO_BOARD_ID: process.env.TRELLO_BOARD_ID ? `${process.env.TRELLO_BOARD_ID.substring(0, 8)}...` : "❌ 없음",
-      TRELLO_LIST_ID: process.env.TRELLO_LIST_ID ? `${process.env.TRELLO_LIST_ID.substring(0, 8)}...` : "❌ 없음"
-    })
-    
     // 환경변수가 없어도 강제로 Trello API 호출 시도
     console.log("🚀 Trello API 강제 실행 시작...")
     let trelloCard: TrelloCardResponse | null = null
